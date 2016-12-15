@@ -9,93 +9,77 @@
 \lstset{language=C}
 \lstset{breaklines}
 \lstset{extendedchars=false}
+\title{Homework 3}
+\author{Tony Jiang\\1500012709}
+\date{\today}
+
 \begin{document}
-  \textbf{3.13}
+\maketitle
+\section{\textbf{3.60}}
   \begin{lstlisting}
-    cmpl  %esi, %edi
-    setl  %al
-
-    int compare(int a, int b)
-      return a > b;
-  \end{lstlisting}
-
-  \textbf{3.15}
-  \begin{lstlisting}
-    //A
-    4003fa: 74 02      je 4003fe
-    4003fc: ff d0      callq *%rax
-
-    //B
-    40042f: 74 f4      je 40042b
-    400431: 5d         pop %rbp
-  \end{lstlisting}
-
-  \textbf{3.16}
-  \begin{lstlisting}
-    void cond(long a, long b) {
-      if(p && a > *p)
-        *p = a;
-    }
-
-    //transform
-    void cond(long a, long b) {
-      if(!p)
-        goto L1;
-      else if(a <= *p)
-        goto L1;
-      *p = a;
-      L1:
-        return;
-    }
-  \end{lstlisting}
-
-  \textbf{3.18}
-  \begin{lstlisting}
-    long test(long x, long y, long z) {
-      long val = x + y;
-      if(val += z < -3) {
-        if(y < z) {
-          val = x * y;
-        }
-        else {
-          val = y * z;
-        }
-      }
-      else if(x > 2) {
-        val = x * z;
-      }
-      return val;
-    }
-  \end{lstlisting}
-
-  \textbf{3.19}
-  \begin{equation*}
-    \begin{split}
-      T_{ave}(p) &= T_{ok} + p \cdot T_{p} \\
-      T_{p} &= \frac{T_{ave} - T_{ok}}{p}
-    \end{split}
-  \end{equation*}
-
-  \textbf{3.21}
-  \begin{lstlisting}
-    #define OP /
-
-    long arith(long x) {
-    //for negative number a bias of (8 - 1) is needed
-      return x OP 8
-    }
-  \end{lstlisting}
-
-  \textbf{3.24}
-  \begin{lstlisting}
-    long loop_while(long a, long b) {
-      long result = 1;
-      while(a > b) {
-        result = (a + b) * result;
-        a = a + 1;
+    long loop(long x, long n) {
+      long result = 0;
+      long mask;
+      for(mask = 1; mask != 0; mask = mask << n) {
+        result |= x & mask;
       }
       return result;
     }
   \end{lstlisting}
+  \subsection{\textbf{A.}}
+    \textbf{mask} in \textit{\%rdx}; \\
+    \textbf{x} in \textit{\%rdi}; \\
+    \textbf{n} in \textit{\%rsi}; \\
+    \textbf{result} in \textit{\%rax};
 
+  \subsection{\textbf{B.}}
+    The initial value of \textbf{result} is \textit{0}; \\
+    THe initial value of \textbf{mask} is \textit{1};
+
+  \subsection{\textbf{C.}}
+    The test condition is whether \textbf{mask} equals zero.
+
+  \subsection{\textbf{D.}}
+    Every time \textbf{mask} is shifted left \textbf{n} bits.
+
+  \subsection{\textbf{E.}}
+    The answer already given above.
+
+  \section{\textbf{3.61}}
+    \begin{lstlisting}
+      long cread_alt(long *xp) {
+        long t = 0;
+        long *p = xp ? xp: t;
+        return *p;
+      }
+    \end{lstlisting}
+
+  \section{\textbf{3.64}}
+    \begin{equation*}
+      \begin{cases}
+        R &= 56 \\
+        S &= 5 \\
+        T &= 13
+      \end{cases}
+    \end{equation*}
+
+  \section{\textbf{3.68}}
+    \begin{equation*}
+      \begin{cases}
+        A &= 15 \\
+        B &= 3
+      \end{cases}
+    \end{equation*}
+
+  \section{\textbf{3.69}}
+    \subsection{\textbf{the value of \textit{CNT}}}
+    $$CNT = 7$$
+
+    \subsection{\textbf{the declaration of \textit{a\_struct}}}
+    \begin{lstlisting}
+      struct a_struct {
+        long n;
+        long x[4];
+      }
+    \end{lstlisting}
 \end{document}
