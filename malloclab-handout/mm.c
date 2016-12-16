@@ -3,6 +3,9 @@
  *
  * NOTE TO STUDENTS: Replace this header comment with your own header
  * comment that gives a high level description of your solution.
+ * Tony Jiang 1500012709
+ * 2016/12/15
+ * Now I've done nothing useful, this is the original version
  */
 #include <assert.h>
 #include <stdio.h>
@@ -95,4 +98,5 @@ static int aligned(const void *p) {
  * mm_checkheap
  */
 void mm_checkheap(int lineno) {
+	;
 }
