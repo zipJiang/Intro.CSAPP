@@ -38,6 +38,7 @@
 /* Read and write a word at address p */
 #define GET(p)       (*(unsigned int *)(p))            
 #define PUT(p, val)  (*(unsigned int *)(p) = (val))    
+#define PTRPUT(p, val) (*(unsigned long *)(p) = (unsigned long)(val))
 
 /* Read the size and allocated fields from address p */
 #define GET_SIZE(p)  (GET(p) & ~0x7)                   
@@ -53,9 +54,13 @@
 
 /* Global variables */
 static char *heap_listp = 0;  /* Pointer to first block */  
-#ifdef NEXT_FIT
-static char *rover;           /* Next fit rover */
-#endif
+static unsigned long *seg_listp = 0;
+
+/*
+ *#ifdef NEXT_FIT
+ *static char *rover;           [> Next fit rover <]
+ *#endif
+ */
 
 /* Function prototypes for internal helper routines */
 static void *extend_heap(size_t words);
@@ -68,18 +73,25 @@ static void *coalesce(void *bp);
  */
 int mm_init(void) 
 {
+	/*create empty segregated list and move heap_listp forward */
+	if ((seg_listp = mem_sbrk(33 * 8)) == (void*)-1)
+		return -1;
+	heap_listp += 33 * 8;
     /* Create the initial empty heap */
     if ((heap_listp = mem_sbrk(4*WSIZE)) == (void *)-1) 
         return -1;
     PUT(heap_listp, 0);                          /* Alignment padding */
     PUT(heap_listp + (1*WSIZE), PACK(DSIZE, 1)); /* Prologue header */ 
+	//PTRPUT(heap_listp + (2*WSIZE), NULL);
     PUT(heap_listp + (2*WSIZE), PACK(DSIZE, 1)); /* Prologue footer */ 
     PUT(heap_listp + (3*WSIZE), PACK(0, 1));     /* Epilogue header */
     heap_listp += (2*WSIZE);                     
 
-#ifdef NEXT_FIT
-    rover = heap_listp;
-#endif
+/*
+ *#ifdef NEXT_FIT
+ *    rover = heap_listp;
+ *#endif
+ */
 
     /* Extend the empty heap with a free block of CHUNKSIZE bytes */
     if (extend_heap(CHUNKSIZE/WSIZE) == NULL) 
@@ -90,11 +102,11 @@ int mm_init(void)
 /* 
  * malloc - Allocate a block with at least size bytes of payload 
  */
-void *malloc(size_t size) 
+void *mm_malloc(size_t size) 
 {
     size_t asize;      /* Adjusted block size */
     size_t extendsize; /* Amount to extend heap if no fit */
-    char *bp;      
+    char *bp;
 
     if (heap_listp == 0){
         mm_init();
@@ -107,11 +119,16 @@ void *malloc(size_t size)
     if (size <= DSIZE)                                          
         asize = 2*DSIZE;                                        
     else
+		/*The appended DSIZE - 1 is for alignment issue, making
+		 * sure that the result follows a bi-word alignment*/
         asize = DSIZE * ((size + (DSIZE) + (DSIZE-1)) / DSIZE); 
 
     /* Search the free list for a fit */
-    if ((bp = find_fit(asize)) != NULL) {  
-        place(bp, asize);                  
+    if ((bp = find_fit(asize)) != NULL) {
+		/* NOTE: the memory split would be done in the
+		 * "place" function
+		 */
+        place(bp, asize);
         return bp;
     }
 
@@ -121,13 +138,16 @@ void *malloc(size_t size)
         return NULL;                                  
     place(bp, asize);                                 
     return bp;
-} 
+}
 
 /* 
  * free - Free a block 
  */
-void free(void *bp)
+void mm_free (void *bp)
 {
+	/* In the mm_free function, we have to coalesce freed space,
+	 * and insert the freed space back into the seg_list
+	 */
     if (bp == 0) 
         return;
 
@@ -139,13 +159,23 @@ void free(void *bp)
     PUT(HDRP(bp), PACK(size, 0));
     PUT(FTRP(bp), PACK(size, 0));
     coalesce(bp);
+	/* This code insert the block back into the proper list entry. */
+	size = GET_SIZE(HDRP(bp));
+	int i = 0;
+	for(i = 0; 1 << i < size; ++i) {
+		;
+	}
+	PTRPUT(bp, seg_listp[i]);
+	seg_listp[i] = (unsigned long)bp;
 }
 
 /*
  * realloc - Naive implementation of realloc
  */
-void *realloc(void *ptr, size_t size)
+void *mm_realloc (void *ptr, size_t size)
 {
+	/*I believe that proper usage of this function can enhance
+	 * space utility, but I don't know how. */
     size_t oldsize;
     void *newptr;
 
@@ -185,7 +215,34 @@ void *realloc(void *ptr, size_t size)
  */
 void mm_checkheap(int lineno)  
 { 
-    lineno = lineno; /* keep gcc happy */
+	/* Logistic:
+	 * This function checks first whether each entry of
+	 * the Segregated List is available and correct
+	 * Then from the prologue it begins a linear iteration
+	 * of all the blocks, testing whether the Head and Footer
+	 * is correct.
+	 */
+    /*lineno = lineno; [> keep gcc happy <]*/
+	int i = 0;
+	for(i = 0; i != 33; ++i) {
+		unsigned long* temp = (unsigned long*)seg_listp[i];
+		while(temp != NULL) {
+			size_t sh = GET_SIZE(HDRP((void*)temp));
+			if(GET_ALLOC(HDRP((void*)temp))) {
+				printf("WRONG LIST INSERTION DETECTED: ALLOCATED - %d\n", lineno);
+				exit(0);
+			}
+			size_t sf = GET_SIZE(FTRP((void*)temp));
+			if(sf != sh) {
+				printf("WRONG BLOCK INITIALIZATION: INCONGRUOUS HF - %d\n", lineno);
+				exit(0);
+			}
+			temp = (unsigned long*)(*temp);
+		}
+	}
+	/*linear search*/
+	/* This is not that important, maybe I'll handle this later. */
+	return ;
 }
 
 /* 
@@ -208,10 +265,25 @@ static void *extend_heap(size_t words)
     /* Initialize free block header/footer and the epilogue header */
     PUT(HDRP(bp), PACK(size, 0));         /* Free block header */   
     PUT(FTRP(bp), PACK(size, 0));         /* Free block footer */   
+	PTRPUT(bp, NULL);
     PUT(HDRP(NEXT_BLKP(bp)), PACK(0, 1)); /* New epilogue header */ 
+	
+	/* First coalesce bp, than insert it into the head of the
+	 * linked list */
+	bp = coalesce(bp);
+
+	/*ADDING new bp*/
+	int i = 0;
+	for(i = 0; 1 << i < GET_SIZE(HDRP(bp)); ++i) {
+		; //Magic Code Keeping GCC HAPPY
+	}
+
+	/*Insertion*/
+	*((unsigned long*)bp) = seg_listp[i];
+	seg_listp = (unsigned long*)bp;
 
     /* Coalesce if the previous block was free */
-    return coalesce(bp);                                          
+    return bp;                                          
 }
 
 /*
@@ -219,6 +291,7 @@ static void *extend_heap(size_t words)
  */
 static void *coalesce(void *bp) 
 {
+	unsigned long*old_bp = (unsigned long*)bp;
     size_t prev_alloc = GET_ALLOC(FTRP(PREV_BLKP(bp)));
     size_t next_alloc = GET_ALLOC(HDRP(NEXT_BLKP(bp)));
     size_t size = GET_SIZE(HDRP(bp));
@@ -228,24 +301,105 @@ static void *coalesce(void *bp)
     }
 
     else if (prev_alloc && !next_alloc) {      /* Case 2 */
-        size += GET_SIZE(HDRP(NEXT_BLKP(bp)));
+        int tempsize = GET_SIZE(HDRP(NEXT_BLKP(bp)));
+		/* determine which list the chunk is in*/
+		int i = 0;
+		for(i = 0; 1 << i < tempsize; ++i) {
+			;	//Make GCC happy again.
+		}
+		/* Delete item from the segregated list*/
+		unsigned long* tempseg = seg_listp + i;
+		unsigned long* curr_del = (unsigned long*)NEXT_BLKP(bp);
+		while(*tempseg != (unsigned long)curr_del
+				&& tempseg != NULL) {
+			tempseg = (unsigned long*)(*tempseg);
+		}
+		/* WARNING: This block is only used for debugging! */
+		if(tempseg == NULL) {
+			printf("WARNING: A BLOCK which should be found in the SEGREGATED list is missing!");
+		}
+		/*DEBUGGING ENDS HERE*/
+		PTRPUT(tempseg, *curr_del);
+
+		size += tempsize;
+
         PUT(HDRP(bp), PACK(size, 0));
         PUT(FTRP(bp), PACK(size,0));
+		/* In this case we have to delete nextBlock from the
+		 * free list. */
+		/* DONE */
     }
 
     else if (!prev_alloc && next_alloc) {      /* Case 3 */
-        size += GET_SIZE(HDRP(PREV_BLKP(bp)));
+        int tempsize = GET_SIZE(HDRP(PREV_BLKP(bp)));
+		int i = 0;
+		for(i = 0; 1 << i < tempsize; ++i) {
+			;
+		}
+		unsigned long* tempseg = seg_listp + i;
+		unsigned long* curr_del = (unsigned long*)PREV_BLKP(bp);
+		while(*tempseg != (unsigned long)curr_del
+				&& tempseg != NULL) {
+			tempseg = (unsigned long*)(*tempseg);
+		}
+		/* WARNING: This block is only used for debugging! */
+		if(tempseg == NULL) {
+			printf("WARNING: A BLOCK which should be found in the SEGREGATED list is missing!");
+		}
+		/*DEBUGGING ENDS HERE*/
+		PTRPUT(tempseg, *curr_del);
+
+		size += tempsize;
+
         PUT(FTRP(bp), PACK(size, 0));
         PUT(HDRP(PREV_BLKP(bp)), PACK(size, 0));
         bp = PREV_BLKP(bp);
+		/*In this case we have to delete the prevBlock*/
     }
 
     else {                                     /* Case 4 */
-        size += GET_SIZE(HDRP(PREV_BLKP(bp))) + 
-            GET_SIZE(FTRP(NEXT_BLKP(bp)));
+        int tempsize_prev = GET_SIZE(HDRP(PREV_BLKP(bp)));
+		int tempsize_next = GET_SIZE(FTRP(NEXT_BLKP(bp)));
+		//delete the previous first
+		int i = 0;
+		for(i = 0; 1 << i < tempsize_prev; ++i) {
+			;
+		}
+		unsigned long* tempseg = seg_listp + i;
+		unsigned long* curr_del = (unsigned long*)PREV_BLKP(bp);
+		while(*tempseg != (unsigned long)curr_del
+				&& tempseg != NULL) {
+			tempseg = (unsigned long*)(*tempseg);
+		}
+		/* WARNING: This block is only used for debugging! */
+		if(tempseg == NULL) {
+			printf("WARNING: A BLOCK which should be found in the SEGREGATED list is missing!");
+		}
+		/*DEBUGGING ENDS HERE*/
+		PTRPUT(tempseg, *curr_del);
+
+		//then next
+		for(i = 0; i << i < tempsize_next; ++i) {
+			;
+		}
+		tempseg = seg_listp + i;
+		curr_del = (unsigned long*)PREV_BLKP(bp);
+		while(*tempseg != (unsigned long)curr_del
+				&& tempseg != NULL) {
+			tempseg = (unsigned long*)(*tempseg);
+		}
+		/*WARNING: DEBUG ONLY*/
+		if(tempseg == NULL) {
+			printf("WARNING: A BLOCK which should be found in the SEGREGATED list is missing!");
+		}
+		/*DEBUGGING ENDS HERE*/
+		PTRPUT(tempseg, *curr_del);
+
+		size += tempsize_prev + tempsize_next;
         PUT(HDRP(PREV_BLKP(bp)), PACK(size, 0));
         PUT(FTRP(NEXT_BLKP(bp)), PACK(size, 0));
         bp = PREV_BLKP(bp);
+		/*In this we have to delete both*/
     }
 #ifdef NEXT_FIT
     /* Make sure the rover isn't pointing into the free block */
@@ -253,6 +407,24 @@ static void *coalesce(void *bp)
     if ((rover > (char *)bp) && (rover < NEXT_BLKP(bp))) 
         rover = bp;
 #endif
+
+	/*ALSO, we have to delete bp!!!!!*/
+	/*using old_bp instead of bp to perform delete.*/
+	int tempsize_bp = GET_SIZE(HDRP(old_bp));
+	int i_bp = 0;
+	for(i_bp = 0; 1 << i_bp < tempsize_bp; ++i_bp) {
+		;
+	}
+	unsigned long *tempseg_bp = seg_listp + i_bp;
+	while(*tempseg_bp != (unsigned long)old_bp
+			&& tempseg_bp != NULL) {
+		tempseg_bp = (unsigned long*)(*tempseg_bp);
+	}
+	if(tempseg_bp == NULL) {
+		printf("WARNING: A BLOCK which should be found in the SEGREGATED list is missing!");
+	}
+	PTRPUT(tempseg_bp, old_bp);
+
     return bp;
 }
 
@@ -262,16 +434,30 @@ static void *coalesce(void *bp)
  */
 static void place(void *bp, size_t asize)
 {
-    size_t csize = GET_SIZE(HDRP(bp));   
+    size_t csize = GET_SIZE(HDRP(bp));
 
     if ((csize - asize) >= (2*DSIZE)) { 
+
         PUT(HDRP(bp), PACK(asize, 1));
         PUT(FTRP(bp), PACK(asize, 1));
+
+		/*add smaller segments back into the list*/
         bp = NEXT_BLKP(bp);
+		/*Insert the newly allocated block*/
         PUT(HDRP(bp), PACK(csize-asize, 0));
         PUT(FTRP(bp), PACK(csize-asize, 0));
+		/* First decide which segregated list bp in*/
+		int i = 0;
+		for(i = 0; 1 << i < csize - asize; ++i) {
+			;
+		}
+		/* insert into the proper list entry*/
+		PTRPUT(bp, seg_listp[i]);
+		seg_listp[i] = (unsigned long)bp;
     }
-    else { 
+    else {
+		/* which means we only have to delete the insertion
+		 * won't be performed.*/
         PUT(HDRP(bp), PACK(csize, 1));
         PUT(FTRP(bp), PACK(csize, 1));
     }
@@ -300,9 +486,25 @@ static void *find_fit(size_t asize)
 #else 
     /* First-fit search */
     void *bp;
-
-    for (bp = heap_listp; GET_SIZE(HDRP(bp)) > 0; bp = NEXT_BLKP(bp)) {
-        if (!GET_ALLOC(HDRP(bp)) && (asize <= GET_SIZE(HDRP(bp)))) {
+	/* Determine proper list entry and rewrite fitsize */
+	int i = 0;
+	for(i = 0; 1 << i < asize; ++i) {
+		; /* Keep GCC Happy*/
+	}
+	/* As this method will left the first one, lets manual compromise */
+	bp = (void *)seg_listp[i];
+	if(GET_SIZE(HDRP((unsigned long*)seg_listp[i])) >= asize) {
+		/* delete and return */
+		seg_listp[i] = *((unsigned long*)bp);
+		return bp;
+	}
+    for (; bp != NULL;
+			bp = (void*)(*(unsigned long*)bp)) {
+        if (asize <= GET_SIZE(HDRP(*(unsigned long*)bp))) {
+			/*delete bp first*/
+			unsigned long*tempseg = (unsigned long*)bp;
+			bp = (void*)(*tempseg);
+			PTRPUT(tempseg, *(unsigned long*)bp);
             return bp;
         }
     }

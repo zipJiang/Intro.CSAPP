@@ -46,6 +46,7 @@
 
 /* Global variables */
 static char *heap_listp = 0;  /* Pointer to first block */  
+static unsigned long *seg_listp = 0;
 #ifdef NEXT_FIT
 static char *rover;           /* Next fit rover */
 #endif
@@ -65,6 +66,11 @@ static void checkblock(void *bp);
 /* $begin mminit */
 int mm_init(void) 
 {
+	/* Before any span is allocated, allocating space for the
+	 * segregated list. */
+	if((seg_listp = mem_sbrk(8 * 33)) == (void *)-1)
+		return -1;
+	heap_listp = (char *)(seg_listp + 33); //Here heap_listp is pointing to the virtual beginning of the heap.
     /* Create the initial empty heap */
     if ((heap_listp = mem_sbrk(4*WSIZE)) == (void *)-1) //line:vm:mm:begininit
 	return -1;
