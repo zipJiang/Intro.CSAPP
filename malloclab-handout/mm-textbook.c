@@ -158,7 +158,7 @@ void mm_free (void *bp)
 	/* This code insert the block back into the proper list entry. */
 	size = GET_SIZE(HDRP(bp));
 	int i = 0;
-	for(i = 0; 1 << i < size; ++i) {
+	for(i = 0; (unsigned int)(1 << i) < size; ++i) {
 		;
 	}
 	PTRPUT(bp, seg_listp[i]);
@@ -270,7 +270,7 @@ static void *extend_heap(size_t words)
 
 	/*ADDING new bp*/
 	int i = 0;
-	for(i = 0; 1 << i < GET_SIZE(HDRP(bp)); ++i) {
+	for(i = 0; (unsigned int)(1 << i) < GET_SIZE(HDRP(bp)); ++i) {
 		; //Magic Code Keeping GCC HAPPY
 	}
 
@@ -300,7 +300,7 @@ static void *coalesce(void *bp)
         size_t tempsize = GET_SIZE(HDRP(NEXT_BLKP(bp)));
 		/* determine which list the chunk is in*/
 		int i = 0;
-		for(i = 0; 1 << i < tempsize; ++i) {
+		for(i = 0; (unsigned int)(1 << i) < tempsize; ++i) {
 			;	//Make GCC happy again.
 		}
 		/* Delete item from the segregated list*/
@@ -329,7 +329,7 @@ static void *coalesce(void *bp)
     else if (!prev_alloc && next_alloc) {      /* Case 3 */
         size_t tempsize = GET_SIZE(HDRP(PREV_BLKP(bp)));
 		int i = 0;
-		for(i = 0; 1 << i < tempsize; ++i) {
+		for(i = 0; (unsigned int)(1 << i) < tempsize; ++i) {
 			;
 		}
 		unsigned long* tempseg = seg_listp + i;
@@ -358,7 +358,7 @@ static void *coalesce(void *bp)
 		size_t tempsize_next = GET_SIZE(FTRP(NEXT_BLKP(bp)));
 		//delete the previous first
 		int i = 0;
-		for(i = 0; 1 << i < tempsize_prev; ++i) {
+		for(i = 0; (unsigned int)(1 << i) < tempsize_prev; ++i) {
 			;
 		}
 		unsigned long* tempseg = seg_listp + i;
@@ -375,7 +375,7 @@ static void *coalesce(void *bp)
 		PTRPUT(tempseg, *curr_del);
 
 		//then next
-		for(i = 0; i << i < tempsize_next; ++i) {
+		for(i = 0; (unsigned int)(i << i) < tempsize_next; ++i) {
 			;
 		}
 		tempseg = seg_listp + i;
@@ -444,7 +444,7 @@ static void place(void *bp, size_t asize)
         PUT(FTRP(bp), PACK(csize-asize, 0));
 		/* First decide which segregated list bp in*/
 		int i = 0;
-		for(i = 0; 1 << i < csize - asize; ++i) {
+		for(i = 0; (unsigned int)(1 << i) < csize - asize; ++i) {
 			;
 		}
 		/* insert into the proper list entry*/
