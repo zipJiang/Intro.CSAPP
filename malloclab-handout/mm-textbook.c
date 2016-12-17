@@ -444,7 +444,7 @@ static void place(void *bp, size_t asize)
         PUT(FTRP(bp), PACK(csize-asize, 0));
 		/* First decide which segregated list bp in*/
 		int i = 0;
-		for(i = 0; (unsigned int)(1 << i) < csize - asize; ++i) {
+		for(i = 0; ((unsigned int)(1 << i) < csize - asize); ++i) {
 			;
 		}
 		/* insert into the proper list entry*/
@@ -494,7 +494,7 @@ static void *find_fit(size_t asize)
 
 	/* As this method will left the first one, lets manual compromise */
 	bp = (void *)seg_listp[i];
-	if(GET_SIZE(HDRP((unsigned long*)seg_listp[i])) >= asize) {
+	if(GET_SIZE(HDRP(bp)) >= asize) {
 		/* delete and return */
 		seg_listp[i] = *((unsigned long*)bp);
 		return bp;
