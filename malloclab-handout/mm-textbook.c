@@ -56,11 +56,9 @@
 static char *heap_listp = 0;  /* Pointer to first block */  
 static unsigned long *seg_listp = 0;
 
-/*
- *#ifdef NEXT_FIT
- *static char *rover;           [> Next fit rover <]
- *#endif
- */
+#ifdef NEXT_FIT
+static char *rover;           /* Next fit rover */
+#endif
 
 /* Function prototypes for internal helper routines */
 static void *extend_heap(size_t words);
@@ -87,11 +85,9 @@ int mm_init(void)
     PUT(heap_listp + (3*WSIZE), PACK(0, 1));     /* Epilogue header */
     heap_listp += (2*WSIZE);                     
 
-/*
- *#ifdef NEXT_FIT
- *    rover = heap_listp;
- *#endif
- */
+#ifdef NEXT_FIT
+	rover = heap_listp;
+#endif
 
     /* Extend the empty heap with a free block of CHUNKSIZE bytes */
     if (extend_heap(CHUNKSIZE/WSIZE) == NULL) 
