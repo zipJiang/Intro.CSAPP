@@ -408,7 +408,7 @@ static void *coalesce(void *bp)
 	/*using old_bp instead of bp to perform delete.*/
 	size_t tempsize_bp = GET_SIZE(HDRP(old_bp));
 	int i_bp = 0;
-	for(i_bp = 0; 1 << i_bp < tempsize_bp; ++i_bp) {
+	for(i_bp = 0; (1 << i_bp) < tempsize_bp; ++i_bp) {
 		;
 	}
 	unsigned long *tempseg_bp = seg_listp + i_bp;
@@ -484,7 +484,7 @@ static void *find_fit(size_t asize)
     void *bp;
 	/* Determine proper list entry and rewrite fitsize */
 	int i = 0;
-	for(i = 0; 1 << i < asize; ++i) {
+	for(i = 0; (1 << i < asize); ++i) {
 		; /* Keep GCC Happy*/
 	}
 	/* As this method will left the first one, lets manual compromise */
