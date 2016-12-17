@@ -287,7 +287,7 @@ static void *extend_heap(size_t words)
  */
 static void *coalesce(void *bp) 
 {
-	unsigned long*old_bp = (unsigned long*)bp;
+	/*unsigned long*old_bp = (unsigned long*)bp;*/
     size_t prev_alloc = GET_ALLOC(FTRP(PREV_BLKP(bp)));
     size_t next_alloc = GET_ALLOC(HDRP(NEXT_BLKP(bp)));
     size_t size = GET_SIZE(HDRP(bp));
@@ -405,21 +405,26 @@ static void *coalesce(void *bp)
 #endif
 
 	/*ALSO, we have to delete bp!!!!!*/
+	/*The original comment is not correct, bp is never added into the
+	 * list
+	 */
 	/*using old_bp instead of bp to perform delete.*/
-	size_t tempsize_bp = GET_SIZE(HDRP(old_bp));
-	int i_bp = 0;
-	for(i_bp = 0; (unsigned int)(1 << i_bp) < tempsize_bp; ++i_bp) {
-		;
-	}
-	unsigned long *tempseg_bp = seg_listp + i_bp;
-	while(*tempseg_bp != (unsigned long)old_bp
-			&& tempseg_bp != NULL) {
-		tempseg_bp = (unsigned long*)(*tempseg_bp);
-	}
-	if(tempseg_bp == NULL) {
-		printf("WARNING: A BLOCK which should be found in the SEGREGATED list is missing!");
-	}
-	PTRPUT(tempseg_bp, old_bp);
+	/*
+	 *size_t tempsize_bp = GET_SIZE(HDRP(old_bp));
+	 *int i_bp = 0;
+	 *for(i_bp = 0; (unsigned int)(1 << i_bp) < tempsize_bp; ++i_bp) {
+	 *    ;
+	 *}
+	 *unsigned long *tempseg_bp = seg_listp + i_bp;
+	 *while(*tempseg_bp != (unsigned long)old_bp
+	 *        && tempseg_bp != NULL) {
+	 *    tempseg_bp = (unsigned long*)(*tempseg_bp);
+	 *}
+	 *if(tempseg_bp == NULL) {
+	 *    printf("WARNING: A BLOCK which should be found in the SEGREGATED list is missing!");
+	 *}
+	 *PTRPUT(tempseg_bp, old_bp);
+	 */
 
     return bp;
 }
