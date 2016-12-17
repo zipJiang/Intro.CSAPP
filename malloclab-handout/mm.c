@@ -489,7 +489,7 @@ static void *find_fit(size_t asize)
 		; /* Keep GCC Happy*/
 	}
 	/*manually tests whether there is no fit.*/
-	if((unsigned long*)seg_listp[i] == NULL)
+	if(((unsigned long*)seg_listp[i] == NULL) || i == 33)
 		return NULL;
 
 	/* As this method will left the first one, lets manual compromise */
