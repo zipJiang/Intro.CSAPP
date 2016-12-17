@@ -484,9 +484,14 @@ static void *find_fit(size_t asize)
     void *bp;
 	/* Determine proper list entry and rewrite fitsize */
 	int i = 0;
-	for(i = 0; (unsigned int)(1 << i) < asize; ++i) {
+	for(i = 0; (i < 33) && (((unsigned int)(1 << i) < asize) ||
+			((unsigned long*)seg_listp[i] == NULL)); ++i) {
 		; /* Keep GCC Happy*/
 	}
+	/*manually tests whether there is no fit.*/
+	if((unsigned long*)seg_listp[i] == NULL)
+		return NULL;
+
 	/* As this method will left the first one, lets manual compromise */
 	bp = (void *)seg_listp[i];
 	if(GET_SIZE(HDRP((unsigned long*)seg_listp[i])) >= asize) {
