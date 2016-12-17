@@ -275,7 +275,7 @@ static void *extend_heap(size_t words)
 	}
 
 	/*Insertion*/
-	*((unsigned long*)bp) = seg_listp[i];
+	PTRPUT(bp, seg_listp[i]);
 	seg_listp[i] = (unsigned long)bp;
 
     /* Coalesce if the previous block was free */
