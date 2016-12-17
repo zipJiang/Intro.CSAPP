@@ -74,6 +74,11 @@ int mm_init(void)
 	/*create empty segregated list and move heap_listp forward */
 	if ((seg_listp = mem_sbrk(33 * 8)) == (void*)-1)
 		return -1;
+	/* Initialization */
+	int i;
+	for(i = 0; i != 33; ++i) {
+		PTRPUT(seg_listp + i, NULL);
+	}
 	heap_listp += 33 * 8;
     /* Create the initial empty heap */
     if ((heap_listp = mem_sbrk(4*WSIZE)) == (void *)-1) 
