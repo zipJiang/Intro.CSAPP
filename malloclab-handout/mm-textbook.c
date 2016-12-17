@@ -297,7 +297,7 @@ static void *coalesce(void *bp)
     }
 
     else if (prev_alloc && !next_alloc) {      /* Case 2 */
-        int tempsize = GET_SIZE(HDRP(NEXT_BLKP(bp)));
+        size_t tempsize = GET_SIZE(HDRP(NEXT_BLKP(bp)));
 		/* determine which list the chunk is in*/
 		int i = 0;
 		for(i = 0; 1 << i < tempsize; ++i) {
@@ -327,7 +327,7 @@ static void *coalesce(void *bp)
     }
 
     else if (!prev_alloc && next_alloc) {      /* Case 3 */
-        int tempsize = GET_SIZE(HDRP(PREV_BLKP(bp)));
+        size_t tempsize = GET_SIZE(HDRP(PREV_BLKP(bp)));
 		int i = 0;
 		for(i = 0; 1 << i < tempsize; ++i) {
 			;
@@ -354,8 +354,8 @@ static void *coalesce(void *bp)
     }
 
     else {                                     /* Case 4 */
-        int tempsize_prev = GET_SIZE(HDRP(PREV_BLKP(bp)));
-		int tempsize_next = GET_SIZE(FTRP(NEXT_BLKP(bp)));
+        size_t tempsize_prev = GET_SIZE(HDRP(PREV_BLKP(bp)));
+		size_t tempsize_next = GET_SIZE(FTRP(NEXT_BLKP(bp)));
 		//delete the previous first
 		int i = 0;
 		for(i = 0; 1 << i < tempsize_prev; ++i) {
@@ -406,7 +406,7 @@ static void *coalesce(void *bp)
 
 	/*ALSO, we have to delete bp!!!!!*/
 	/*using old_bp instead of bp to perform delete.*/
-	int tempsize_bp = GET_SIZE(HDRP(old_bp));
+	size_t tempsize_bp = GET_SIZE(HDRP(old_bp));
 	int i_bp = 0;
 	for(i_bp = 0; 1 << i_bp < tempsize_bp; ++i_bp) {
 		;
