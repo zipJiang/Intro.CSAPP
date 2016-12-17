@@ -83,7 +83,7 @@ int mm_init(void)
 	//PTRPUT(heap_listp + (2*WSIZE), NULL);
     PUT(heap_listp + (2*WSIZE), PACK(DSIZE, 1)); /* Prologue footer */ 
     PUT(heap_listp + (3*WSIZE), PACK(0, 1));     /* Epilogue header */
-    heap_listp += (2*WSIZE);                     
+    heap_listp += (2*WSIZE);
 
 #ifdef NEXT_FIT
 	rover = heap_listp;
@@ -276,7 +276,7 @@ static void *extend_heap(size_t words)
 
 	/*Insertion*/
 	*((unsigned long*)bp) = seg_listp[i];
-	seg_listp = (unsigned long*)bp;
+	seg_listp[i] = (unsigned long)bp;
 
     /* Coalesce if the previous block was free */
     return bp;                                          
