@@ -516,7 +516,9 @@ static void *find_fit(size_t asize)
 	if(GET_SIZE(HDRP(bp)) >= asize) {
 		/* delete and return */
 		printf("Now deleting bp at %p\n", bp);
+		printf("SEG:BEFORE:%p", (void*)seg_listp[i]);
 		seg_listp[i] = *((unsigned long*)bp);
+		printf("SEG:AFTER:%p", (void*)seg_listp[i]);
 		return bp;
 	}
     for (; bp != NULL;
