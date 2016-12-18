@@ -97,8 +97,19 @@ int mm_init(void)
 #endif
 
     /* Extend the empty heap with a free block of CHUNKSIZE bytes */
-    if (extend_heap(CHUNKSIZE/WSIZE) == NULL) 
+	void *temp;
+    if ((temp = extend_heap(CHUNKSIZE/WSIZE)) == NULL) 
         return -1;
+	/*ADDING new bp*/
+	int i = 0;
+	for(i = 0; (unsigned int)(1 << i) < GET_SIZE(HDRP(temp)); ++i) {
+		; //Magic Code Keeping GCC HAPPY
+	}
+
+	/*Insertion*/
+	PTRPUT(temp, seg_listp[i]);
+	seg_listp[i] = (unsigned long)temp;
+
     return 0;
 }
 
@@ -132,18 +143,19 @@ void *mm_malloc(size_t size)
 		 * "place" function
 		 */
         place(bp, asize);
-		printf("malloc: bp=%p, size=%ld, asize=%ld\n", bp, size, asize);
+		/*printf("malloc: bp=%p, size=%ld, asize=%ld\n", bp, size, asize);*/
         return bp;
     }
 
     /* No fit found. Get more memory and place the block */
     extendsize = MAX(asize,CHUNKSIZE);                 
+	/* WARNING blocks that got by extending heap is not deleted, we should delete it manually." */
     if ((bp = extend_heap(extendsize/WSIZE)) == NULL)  
         return NULL;                                  
     place(bp, asize);
 	
 	/* Verbose Again */
-	printf("malloc: bp=%p, size=%ld, asize=%ld\n", bp, size, asize);
+	/*printf("malloc: bp=%p, size=%ld, asize=%ld\n", bp, size, asize);*/
     return bp;
 }
 
@@ -278,16 +290,6 @@ static void *extend_heap(size_t words)
 	/* First coalesce bp, than insert it into the head of the
 	 * linked list */
 	bp = coalesce(bp);
-
-	/*ADDING new bp*/
-	int i = 0;
-	for(i = 0; (unsigned int)(1 << i) < GET_SIZE(HDRP(bp)); ++i) {
-		; //Magic Code Keeping GCC HAPPY
-	}
-
-	/*Insertion*/
-	PTRPUT(bp, seg_listp[i]);
-	seg_listp[i] = (unsigned long)bp;
 
     /* Coalesce if the previous block was free */
     return bp;                                          
@@ -525,7 +527,7 @@ static void *find_fit(size_t asize)
 		 */
 		seg_listp[i] = *((unsigned long*)bp);
 		/*printf("SEG:AFTER:%p\n", (void*)seg_listp[i]);*/
-		printf("bp:%p\n", bp);
+		/*printf("bp:%p\n", bp);*/
 		return bp;
 	}
     for (; (unsigned long*)(*(unsigned long*)(bp)) != NULL;
@@ -536,7 +538,7 @@ static void *find_fit(size_t asize)
 			unsigned long*tempseg = (unsigned long*)bp;
 			bp = (void*)(*tempseg);
 			PTRPUT(tempseg, *(unsigned long*)bp);
-			printf("bp:%p\n", bp);
+			/*printf("bp:%p\n", bp);*/
             return bp;
         }
     }
