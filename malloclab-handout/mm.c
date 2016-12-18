@@ -461,7 +461,7 @@ static void place(void *bp, size_t asize)
 		}
 		/* insert into the proper list entry*/
 		PTRPUT(nbp, seg_listp[i]);
-		seg_listp[i] = (unsigned long)bp;
+		seg_listp[i] = (unsigned long)nbp;
     }
     else {
 		/* which means we only have to delete the insertion
