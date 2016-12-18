@@ -466,7 +466,7 @@ static void place(void *bp, size_t asize)
 		seg_listp[i] = (unsigned long)nbp;
     }
     else {
-		/* which means we only have to delete the insertion
+		/* which means we only have to delete, the insertion
 		 * won't be performed.*/
         PUT(HDRP(bp), PACK(csize, 1));
         PUT(FTRP(bp), PACK(csize, 1));
@@ -515,17 +515,19 @@ static void *find_fit(size_t asize)
 	bp = (void *)seg_listp[i];
 	if(GET_SIZE(HDRP(bp)) >= asize) {
 		/* delete and return */
-		printf("Now deleting bp at %p\n", bp);
-		printf("SEG:BEFORE:%p", (void*)seg_listp[i]);
+		/*
+		 *printf("Now deleting bp at %p\n", bp);
+		 *printf("SEG:BEFORE:%p\n", (void*)seg_listp[i]);
+		 */
 		seg_listp[i] = *((unsigned long*)bp);
-		printf("SEG:AFTER:%p", (void*)seg_listp[i]);
+		/*printf("SEG:AFTER:%p\n", (void*)seg_listp[i]);*/
 		return bp;
 	}
-    for (; bp != NULL;
+    for (; (unsigned long*)(*(unsigned long*)(bp)) != NULL;
 			bp = (void*)(*(unsigned long*)bp)) {
         if (asize <= GET_SIZE(HDRP(*(unsigned long*)bp))) {
 			/*delete bp first*/
-			printf("Now deleting bp at %p\n", (void*)bp);
+			/*printf("Now deleting bp at %p\n", (void*)bp);*/
 			unsigned long*tempseg = (unsigned long*)bp;
 			bp = (void*)(*tempseg);
 			PTRPUT(tempseg, *(unsigned long*)bp);
