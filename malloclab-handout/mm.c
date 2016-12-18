@@ -98,8 +98,9 @@ int mm_init(void)
 
     /* Extend the empty heap with a free block of CHUNKSIZE bytes */
 	void *temp;
-    if ((temp = extend_heap(CHUNKSIZE/WSIZE)) == NULL) 
+    if ((temp = extend_heap(CHUNKSIZE/WSIZE)) == NULL) {
         return -1;
+	}
 	/*ADDING new bp*/
 	int i = 0;
 	for(i = 0; (unsigned int)(1 << i) < GET_SIZE(HDRP(temp)); ++i) {
