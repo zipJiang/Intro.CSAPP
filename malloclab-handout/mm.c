@@ -513,7 +513,7 @@ static void *find_fit(size_t asize)
 	bp = (void *)seg_listp[i];
 	if(GET_SIZE(HDRP(bp)) >= asize) {
 		/* delete and return */
-		printf("Now deleting bp at %ld\n", (unsigned long)bp);
+		printf("Now deleting bp at %p\n", bp);
 		seg_listp[i] = *((unsigned long*)bp);
 		return bp;
 	}
@@ -521,7 +521,7 @@ static void *find_fit(size_t asize)
 			bp = (void*)(*(unsigned long*)bp)) {
         if (asize <= GET_SIZE(HDRP(*(unsigned long*)bp))) {
 			/*delete bp first*/
-			printf("Now deleting bp at %ld\n", (unsigned long)bp);
+			printf("Now deleting bp at %p\n", (void*)bp);
 			unsigned long*tempseg = (unsigned long*)bp;
 			bp = (void*)(*tempseg);
 			PTRPUT(tempseg, *(unsigned long*)bp);
