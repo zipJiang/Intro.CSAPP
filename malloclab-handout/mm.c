@@ -451,6 +451,8 @@ static void place(void *bp, size_t asize)
 
 		/*add smaller segments back into the list*/
         void *nbp = NEXT_BLKP(bp);
+		/* Verbose */
+		printf("In function place(): nbp = %p\n", nbp);
 		/*Insert the newly allocated block*/
         PUT(HDRP(nbp), PACK(csize-asize, 0));
         PUT(FTRP(nbp), PACK(csize-asize, 0));
