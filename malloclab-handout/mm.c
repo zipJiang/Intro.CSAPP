@@ -525,6 +525,7 @@ static void *find_fit(size_t asize)
 		 */
 		seg_listp[i] = *((unsigned long*)bp);
 		/*printf("SEG:AFTER:%p\n", (void*)seg_listp[i]);*/
+		printf("bp:%p\n", bp);
 		return bp;
 	}
     for (; (unsigned long*)(*(unsigned long*)(bp)) != NULL;
