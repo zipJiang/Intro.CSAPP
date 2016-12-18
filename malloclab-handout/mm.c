@@ -23,7 +23,7 @@
 /*
  * If NEXT_FIT defined use next fit search, else use first-fit search 
  */
-#define NEXT_FITx
+/*#define NEXT_FITx*/
 
 /* Basic constants and macros */
 #define WSIZE       4       /* Word and header/footer size (bytes) */ 
@@ -76,9 +76,11 @@ int mm_init(void)
 		return -1;
 	/* Initialization */
 	int i;
-	for(i = 0; i != 33; ++i) {
-		PTRPUT(seg_listp + i, NULL);
-	}
+	/*
+	 *for(i = 0; i != 33; ++i) {
+	 *    PTRPUT(seg_listp + i, NULL);
+	 *}
+	 */
 	heap_listp += 33 * 8;
     /* Create the initial empty heap */
     if ((heap_listp = mem_sbrk(4*WSIZE)) == (void *)-1) 
@@ -448,17 +450,17 @@ static void place(void *bp, size_t asize)
         PUT(FTRP(bp), PACK(asize, 1));
 
 		/*add smaller segments back into the list*/
-        bp = NEXT_BLKP(bp);
+        void *nbp = NEXT_BLKP(bp);
 		/*Insert the newly allocated block*/
-        PUT(HDRP(bp), PACK(csize-asize, 0));
-        PUT(FTRP(bp), PACK(csize-asize, 0));
+        PUT(HDRP(nbp), PACK(csize-asize, 0));
+        PUT(FTRP(nbp), PACK(csize-asize, 0));
 		/* First decide which segregated list bp in*/
 		int i = 0;
 		for(i = 0; ((unsigned int)(1 << i) < csize - asize); ++i) {
 			;
 		}
 		/* insert into the proper list entry*/
-		PTRPUT(bp, seg_listp[i]);
+		PTRPUT(nbp, seg_listp[i]);
 		seg_listp[i] = (unsigned long)bp;
     }
     else {
