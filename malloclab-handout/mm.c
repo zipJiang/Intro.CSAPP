@@ -28,7 +28,7 @@
 /* Basic constants and macros */
 #define WSIZE       4       /* Word and header/footer size (bytes) */ 
 #define DSIZE       8       /* Double word size (bytes) */
-#define CHUNKSIZE  (1<<12)  /* Extend heap by this amount (bytes) */  
+#define CHUNKSIZE  (1<<6)  /* Extend heap by this amount (bytes) */  
 
 #define MAX(x, y) ((x) > (y)? (x) : (y))  
 
@@ -132,6 +132,7 @@ void *mm_malloc(size_t size)
 		 * "place" function
 		 */
         place(bp, asize);
+		printf("malloc: bp=%p, size=%ld, asize=%ld\n", bp, size, asize);
         return bp;
     }
 
@@ -455,7 +456,7 @@ static void place(void *bp, size_t asize)
 		/*add smaller segments back into the list*/
         void *nbp = NEXT_BLKP(bp);
 		/* Verbose */
-		printf("In function place(): nbp = %p\n", nbp);
+		/*printf("In function place(): nbp = %p\n", nbp);*/
 		/*Insert the newly allocated block*/
         PUT(HDRP(nbp), PACK(csize-asize, 0));
         PUT(FTRP(nbp), PACK(csize-asize, 0));
