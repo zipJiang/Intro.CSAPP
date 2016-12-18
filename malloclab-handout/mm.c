@@ -75,7 +75,7 @@ int mm_init(void)
 	if ((seg_listp = mem_sbrk(33 * 8)) == (void*)-1)
 		return -1;
 	/* Initialization */
-	int i;
+	/*int i;*/
 	/*
 	 *for(i = 0; i != 33; ++i) {
 	 *    PTRPUT(seg_listp + i, NULL);
