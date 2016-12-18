@@ -139,7 +139,10 @@ void *mm_malloc(size_t size)
     extendsize = MAX(asize,CHUNKSIZE);                 
     if ((bp = extend_heap(extendsize/WSIZE)) == NULL)  
         return NULL;                                  
-    place(bp, asize);                                 
+    place(bp, asize);
+	
+	/* Verbose Again */
+	printf("malloc: bp=%p, size=%ld, asize=%ld\n", bp, size, asize);
     return bp;
 }
 
