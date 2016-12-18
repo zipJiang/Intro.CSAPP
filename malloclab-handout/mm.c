@@ -536,6 +536,7 @@ static void *find_fit(size_t asize)
 			unsigned long*tempseg = (unsigned long*)bp;
 			bp = (void*)(*tempseg);
 			PTRPUT(tempseg, *(unsigned long*)bp);
+			printf("bp:%p\n", bp);
             return bp;
         }
     }
