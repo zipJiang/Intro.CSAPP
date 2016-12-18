@@ -501,8 +501,10 @@ static void *find_fit(size_t asize)
 		; /* Keep GCC Happy*/
 	}
 	/*manually tests whether there is no fit.*/
-	if(((unsigned long*)seg_listp[i] == NULL) || i == 33)
+	if(((unsigned long*)seg_listp[i] == NULL) || i == 33) {
+		printf("In function find_fit(): No proper fit is found, returning....");
 		return NULL;
+	}
 
 	/* As this method will left the first one, lets manual compromise */
 	bp = (void *)seg_listp[i];
