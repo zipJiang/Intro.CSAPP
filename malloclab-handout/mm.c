@@ -499,10 +499,12 @@ static void *find_fit(size_t asize)
 	for(i = 0; (i < 33) && (((unsigned int)(1 << i) < asize) ||
 			((unsigned long*)seg_listp[i] == NULL)); ++i) {
 		; /* Keep GCC Happy*/
+		/* Becomming a little more verbose. */
+		printf("In function find_fit(): seg_listp #%d checked, with value: %ld.\n", i, seg_listp[i]);
 	}
 	/*manually tests whether there is no fit.*/
 	if(((unsigned long*)seg_listp[i] == NULL) || i == 33) {
-		printf("In function find_fit(): No proper fit is found, returning....");
+		printf("In function find_fit(): No proper fit is found, returning....\n");
 		return NULL;
 	}
 
