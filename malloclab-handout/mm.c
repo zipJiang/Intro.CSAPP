@@ -520,6 +520,7 @@ static void *find_fit(size_t asize)
 			bp = (void*)(*(unsigned long*)bp)) {
         if (asize <= GET_SIZE(HDRP(*(unsigned long*)bp))) {
 			/*delete bp first*/
+			printf("Now deleting bp at %ld\n", (unsigned long)bp);
 			unsigned long*tempseg = (unsigned long*)bp;
 			bp = (void*)(*tempseg);
 			PTRPUT(tempseg, *(unsigned long*)bp);
