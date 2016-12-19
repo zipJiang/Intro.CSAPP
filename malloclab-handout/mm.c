@@ -187,7 +187,7 @@ void mm_free (void *bp)
 	}
 	PTRPUT(bp, seg_listp[i]);
 	seg_listp[i] = (unsigned long)bp;
-	printf("free: bp=%p, size=%ld\n, seg_listp[%d]=%p", bp, size, i, (void*)seg_listp[i]);
+	printf("free: bp=%p, size=%ld, seg_listp[%d]=%p\n", bp, size, i, (void*)seg_listp[i]);
 }
 
 /*
