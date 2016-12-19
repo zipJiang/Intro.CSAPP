@@ -494,6 +494,8 @@ static void place(void *bp, size_t asize)
 		unsigned int v = GET_PREALLOC(HDRP(bp));
         PUT(HDRP(bp), PACK(csize, 1 + v));
         PUT(FTRP(bp), PACK(csize, 1));
+		v = GET(HDRP(NEXT_BLKP(bp)));
+		PUT(HDRP(NEXT_BLKP(bp)), v | 2);
     }
 }
 
