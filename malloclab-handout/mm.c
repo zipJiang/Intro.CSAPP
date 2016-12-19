@@ -365,9 +365,9 @@ static void *coalesce(void *bp)
 
 		size += tempsize;
 
-        bp = PREV_BLKP(bp);
         PUT(FTRP(bp), PACK(size, 0));
         PUT(HDRP(PREV_BLKP(bp)), PACK(size, 0));
+        bp = PREV_BLKP(bp);
 		/*In this case we have to delete the prevBlock*/
     }
 
@@ -394,9 +394,9 @@ static void *coalesce(void *bp)
 
 		size += tempsize_prev;
 
-        bp = PREV_BLKP(bp);
         PUT(FTRP(bp), PACK(size, 0));
         PUT(HDRP(PREV_BLKP(bp)), PACK(size, 0));
+        bp = PREV_BLKP(bp);
 		//then next
 		for(i = 0; (size_t)(1 << i) < tempsize_next; ++i) {
 			;
@@ -415,8 +415,8 @@ static void *coalesce(void *bp)
 		PTRPUT(tempseg, *curr_del);
 
 		size += tempsize_next;
-        PUT(HDRP(PREV_BLKP(bp)), PACK(size, 0));
-        PUT(FTRP(NEXT_BLKP(bp)), PACK(size, 0));
+        PUT(HDRP(bp), PACK(size, 0));
+        PUT(FTRP(bp), PACK(size, 0));
 		/*In this we have to delete both*/
     }
 #ifdef NEXT_FIT
