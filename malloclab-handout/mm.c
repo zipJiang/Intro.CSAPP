@@ -477,8 +477,7 @@ static void place(void *bp, size_t asize)
 		/* Verbose */
 		/*printf("In function place(): nbp = %p\n", nbp);*/
 		/*Insert the newly allocated block*/
-		v = GET_PREALLOC(HDRP(nbp));
-        PUT(HDRP(nbp), PACK(csize-asize, v));
+        PUT(HDRP(nbp), PACK(csize-asize, 2));
         PUT(FTRP(nbp), PACK(csize-asize, 0));
 		/* First decide which segregated list bp in*/
 		int i = 0;
