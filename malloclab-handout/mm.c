@@ -348,7 +348,7 @@ static void *coalesce(void *bp)
 		unsigned int v = GET_PREALLOC(HDRP(bp));
         PUT(HDRP(bp), PACK(size, v));
         PUT(FTRP(bp), PACK(size, 0));
-		printf("%d", GET(HDRP(bp)));
+		printf("%d\n", GET(HDRP(bp)));
 		/* In this case we have to delete nextBlock from the
 		 * free list. */
 		/* DONE */
