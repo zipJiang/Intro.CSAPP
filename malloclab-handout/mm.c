@@ -195,7 +195,7 @@ void mm_free (void *bp)
 	}
 	PTRPUT(bp, seg_listp[i]);
 	seg_listp[i] = (unsigned long)bp;
-	/*printf("free: bp=%p, size=%ld, seg_listp[%d]=%p\n", bp, size, i, (void*)seg_listp[i]);*/
+	printf("free: bp=%p, size=%ld, seg_listp[%d]=%p\n", bp, size, i, (void*)seg_listp[i]);
 }
 
 /*
@@ -380,7 +380,7 @@ static void *coalesce(void *bp)
         PUT(HDRP(PREV_BLKP(bp)), PACK(size, v));
         bp = PREV_BLKP(bp);
 		/*In this case we have to delete the prevBlock*/
-		printf("%d\n", *((int *)(bp - 4)));
+		/*printf("%d\n", *((int *)(bp - 4)));*/
     }
 
     else {                                     /* Case 4 */
