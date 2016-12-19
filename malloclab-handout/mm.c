@@ -71,6 +71,8 @@ static void *coalesce(void *bp);
  */
 int mm_init(void) 
 {
+	static int cnt = 0;
+	printf("%d time in mm_init.\n", cnt++);
 	/*create empty segregated list and move heap_listp forward */
 	heap_listp = 0;
 	if ((seg_listp = mem_sbrk(33 * 8)) == (void*)-1)
@@ -123,8 +125,6 @@ void *mm_malloc(size_t size)
     size_t asize;      /* Adjusted block size */
     size_t extendsize; /* Amount to extend heap if no fit */
     char *bp;
-	static int cnt = 0;
-	printf("%d time in malloc.", cnt++);
 
     if (heap_listp == 0){
         mm_init();
