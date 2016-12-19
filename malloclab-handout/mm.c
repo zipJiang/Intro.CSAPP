@@ -186,6 +186,9 @@ void mm_free (void *bp)
 	unsigned int v = GET_PREALLOC(HDRP(bp));
     PUT(HDRP(bp), PACK(size, v));
     PUT(FTRP(bp), PACK(size, 0));
+	v = GET(HDRP(NEXT_BLKP(bp)));
+	v = v & ~0x2;
+	PUT(HDRP(NEXT_BLKP(bp)), v);
     bp = coalesce(bp);
 	/* This code insert the block back into the proper list entry. */
 	size = GET_SIZE(HDRP(bp));
@@ -195,7 +198,7 @@ void mm_free (void *bp)
 	}
 	PTRPUT(bp, seg_listp[i]);
 	seg_listp[i] = (unsigned long)bp;
-	printf("free: bp=%p, size=%ld, seg_listp[%d]=%p\n", bp, size, i, (void*)seg_listp[i]);
+	/*printf("free: bp=%p, size=%ld, seg_listp[%d]=%p\n", bp, size, i, (void*)seg_listp[i]);*/
 }
 
 /*
@@ -355,7 +358,7 @@ static void *coalesce(void *bp)
     }
 
     else if (!prev_alloc && next_alloc) {      /* Case 3 */
-		printf("ENTER Case 3\n");
+		/*printf("ENTER Case 3\n");*/
         size_t tempsize = GET_SIZE(HDRP(PREV_BLKP(bp)));
 		int i = 0;
 		for(i = 0; (size_t)(1 << (i + 4)) < tempsize; ++i) {
