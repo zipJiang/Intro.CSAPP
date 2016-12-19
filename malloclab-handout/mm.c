@@ -123,6 +123,8 @@ void *mm_malloc(size_t size)
     size_t asize;      /* Adjusted block size */
     size_t extendsize; /* Amount to extend heap if no fit */
     char *bp;
+	static int cnt = 0;
+	printf("%d time in malloc.", cnt++);
 
     if (heap_listp == 0){
         mm_init();
