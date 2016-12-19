@@ -72,6 +72,7 @@ static void *coalesce(void *bp);
 int mm_init(void) 
 {
 	/*create empty segregated list and move heap_listp forward */
+	heap_listp = 0;
 	if ((seg_listp = mem_sbrk(33 * 8)) == (void*)-1)
 		return -1;
 	/* Initialization */
@@ -400,8 +401,7 @@ static void *coalesce(void *bp)
 		}
 		tempseg = seg_listp + i;
 		curr_del = (unsigned long*)NEXT_BLKP(bp);
-		while(*tempseg != (unsigned long)curr_del
-				&& tempseg != NULL) {
+		while(tempseg != NULL && *tempseg != (unsigned long)curr_del) {
 			tempseg = (unsigned long*)(*tempseg);
 		}
 		/*WARNING: DEBUG ONLY*/
