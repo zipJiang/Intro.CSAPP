@@ -71,19 +71,19 @@ static void *coalesce(void *bp);
  */
 int mm_init(void) 
 {
-	static int cnt = 0;
-	printf("%d time in mm_init.\n", cnt++);
+	/*
+	 *static int cnt = 0;
+	 *printf("%d time in mm_init.\n", cnt++);
+	 */
 	/*create empty segregated list and move heap_listp forward */
 	heap_listp = 0;
 	if ((seg_listp = mem_sbrk(33 * 8)) == (void*)-1)
 		return -1;
 	/* Initialization */
-	/*int i;*/
-	/*
-	 *for(i = 0; i != 33; ++i) {
-	 *    PTRPUT(seg_listp + i, NULL);
-	 *}
-	 */
+	int i;
+	for(i = 0; i != 33; ++i) {
+		PTRPUT(seg_listp + i, NULL);
+	}
 	heap_listp += 33 * 8;
     /* Create the initial empty heap */
     if ((heap_listp = mem_sbrk(4*WSIZE)) == (void *)-1) 
@@ -105,7 +105,6 @@ int mm_init(void)
         return -1;
 	}
 	/*ADDING new bp*/
-	int i = 0;
 	for(i = 0; (size_t)(1 << i) < GET_SIZE(HDRP(temp)); ++i) {
 		; //Magic Code Keeping GCC HAPPY
 	}
