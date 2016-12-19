@@ -81,10 +81,10 @@ int mm_init(void)
 		return -1;
 	/* Initialization */
 	int i;
-	for(i = 0; i != 33; ++i) {
+	for(i = 0; i != 28; ++i) {
 		PTRPUT(seg_listp + i, NULL);
 	}
-	heap_listp += 33 * 8;
+	heap_listp += 28 * 8;
     /* Create the initial empty heap */
     if ((heap_listp = mem_sbrk(4*WSIZE)) == (void *)-1) 
         return -1;
@@ -247,7 +247,7 @@ void mm_checkheap(int lineno)
 	 */
     /*lineno = lineno; [> keep gcc happy <]*/
 	int i = 0;
-	for(i = 0; i != 33; ++i) {
+	for(i = 0; i != 28; ++i) {
 		unsigned long* temp = (unsigned long*)seg_listp[i];
 		while(temp != NULL) {
 			size_t sh = GET_SIZE(HDRP((void*)temp));
@@ -512,14 +512,14 @@ static void *find_fit(size_t asize)
 	/* Determine proper list entry and rewrite fitsize */
 	int i = 0;
 	/*printf("In function find_fit(): calculating %ld\n", asize);*/
-	for(i = 0; (i < 33) && (((size_t)(1 << (i + 4)) < asize) ||
+	for(i = 0; (i < 28) && (((size_t)(1 << (i + 4)) < asize) ||
 			((unsigned long*)seg_listp[i] == NULL)); ++i) {
 		; /* Keep GCC Happy*/
 		/* Becomming a little more verbose. */
 		/*printf("In function find_fit(): #%d checked, with value: %ld.\n", i, seg_listp[i]);*/
 	}
 	/*manually tests whether there is no fit.*/
-	if(((unsigned long*)seg_listp[i] == NULL) || i == 33) {
+	if(((unsigned long*)seg_listp[i] == NULL) || i == 28) {
 		/*printf("In function find_fit(): No proper fit is found, returning....\n");*/
 		return NULL;
 	}
