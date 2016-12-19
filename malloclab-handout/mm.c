@@ -402,7 +402,7 @@ static void *coalesce(void *bp)
 			;
 		}
 		tempseg = seg_listp + i;
-		curr_del = (unsigned long*)PREV_BLKP(bp);
+		curr_del = (unsigned long*)NEXT_BLKP(bp);
 		while(*tempseg != (unsigned long)curr_del
 				&& tempseg != NULL) {
 			tempseg = (unsigned long*)(*tempseg);
