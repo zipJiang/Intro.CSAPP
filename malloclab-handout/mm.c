@@ -105,7 +105,7 @@ int mm_init(void)
         return -1;
 	}
 	/*ADDING new bp*/
-	for(i = 0; (size_t)(1 << i) < GET_SIZE(HDRP(temp)); ++i) {
+	for(i = 0; (size_t)(1 << (i + 4)) < GET_SIZE(HDRP(temp)); ++i) {
 		; //Magic Code Keeping GCC HAPPY
 	}
 
@@ -184,7 +184,7 @@ void mm_free (void *bp)
 	/* This code insert the block back into the proper list entry. */
 	size = GET_SIZE(HDRP(bp));
 	int i = 0;
-	for(i = 0; (size_t)(1 << i) < size; ++i) {
+	for(i = 0; (size_t)(1 << (i + 4)) < size; ++i) {
 		;
 	}
 	PTRPUT(bp, seg_listp[i]);
@@ -320,7 +320,7 @@ static void *coalesce(void *bp)
         size_t tempsize = GET_SIZE(HDRP(NEXT_BLKP(bp)));
 		/* determine which list the chunk is in*/
 		int i = 0;
-		for(i = 0; (size_t)(1 << i) < tempsize; ++i) {
+		for(i = 0; (size_t)(1 << (i + 4)) < tempsize; ++i) {
 			;	//Make GCC happy again.
 		}
 		/* Delete item from the segregated list*/
@@ -348,7 +348,7 @@ static void *coalesce(void *bp)
     else if (!prev_alloc && next_alloc) {      /* Case 3 */
         size_t tempsize = GET_SIZE(HDRP(PREV_BLKP(bp)));
 		int i = 0;
-		for(i = 0; (size_t)(1 << i) < tempsize; ++i) {
+		for(i = 0; (size_t)(1 << (i + 4)) < tempsize; ++i) {
 			;
 		}
 		unsigned long* tempseg = seg_listp + i;
@@ -376,7 +376,7 @@ static void *coalesce(void *bp)
 		size_t tempsize_next = GET_SIZE(FTRP(NEXT_BLKP(bp)));
 		//delete the previous first
 		int i = 0;
-		for(i = 0; (size_t)(1 << i) < tempsize_prev; ++i) {
+		for(i = 0; (size_t)(1 << (i + 4)) < tempsize_prev; ++i) {
 			;
 		}
 		unsigned long* tempseg = seg_listp + i;
@@ -397,7 +397,7 @@ static void *coalesce(void *bp)
         PUT(HDRP(PREV_BLKP(bp)), PACK(size, 0));
         bp = PREV_BLKP(bp);
 		//then next
-		for(i = 0; (size_t)(1 << i) < tempsize_next; ++i) {
+		for(i = 0; (size_t)(1 << (i + 4)) < tempsize_next; ++i) {
 			;
 		}
 		tempseg = seg_listp + i;
@@ -471,7 +471,7 @@ static void place(void *bp, size_t asize)
         PUT(FTRP(nbp), PACK(csize-asize, 0));
 		/* First decide which segregated list bp in*/
 		int i = 0;
-		for(i = 0; ((size_t)(1 << i) < csize - asize); ++i) {
+		for(i = 0; ((size_t)(1 << (i + 4)) < csize - asize); ++i) {
 			;
 		}
 		/* insert into the proper list entry*/
@@ -512,7 +512,7 @@ static void *find_fit(size_t asize)
 	/* Determine proper list entry and rewrite fitsize */
 	int i = 0;
 	/*printf("In function find_fit(): calculating %ld\n", asize);*/
-	for(i = 0; (i < 33) && (((size_t)(1 << i) < asize) ||
+	for(i = 0; (i < 33) && (((size_t)(1 << (i + 4)) < asize) ||
 			((unsigned long*)seg_listp[i] == NULL)); ++i) {
 		; /* Keep GCC Happy*/
 		/* Becomming a little more verbose. */
