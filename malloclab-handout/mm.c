@@ -144,7 +144,7 @@ void *mm_malloc(size_t size)
 		 * "place" function
 		 */
         place(bp, asize);
-		/*printf("malloc: bp=%p, size=%ld, asize=%ld\n", bp, size, asize);*/
+		printf("malloc: bp=%p, size=%ld, asize=%ld\n", bp, size, asize);
         return bp;
     }
 
@@ -187,6 +187,7 @@ void mm_free (void *bp)
 	}
 	PTRPUT(bp, seg_listp[i]);
 	seg_listp[i] = (unsigned long)bp;
+	printf("malloc: bp=%p, size=%ld\n", bp, size);
 }
 
 /*
