@@ -345,8 +345,7 @@ static void *coalesce(void *bp)
 
 		size += tempsize;
 		
-		unsigned int v = GET_PREALLOC(HDRP(bp));
-        PUT(HDRP(bp), PACK(size, v));
+        PUT(HDRP(bp), PACK(size, 0));
         PUT(FTRP(bp), PACK(size, 0));
 		/* In this case we have to delete nextBlock from the
 		 * free list. */
