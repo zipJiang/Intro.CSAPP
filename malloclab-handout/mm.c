@@ -151,7 +151,7 @@ void *mm_malloc(size_t size)
 		 * "place" function
 		 */
         place(bp, asize);
-		printf("malloc: bp=%p, size=%ld, asize=%ld\n", bp, size, asize);
+		/*printf("malloc: bp=%p, size=%ld, asize=%ld\n", bp, size, asize);*/
         return bp;
     }
 
@@ -163,7 +163,7 @@ void *mm_malloc(size_t size)
     place(bp, asize);
 	
 	/* Verbose Again */
-	printf("malloc: bp=%p, size=%ld, asize=%ld\n", bp, size, asize);
+	/*printf("malloc: bp=%p, size=%ld, asize=%ld\n", bp, size, asize);*/
     return bp;
 }
 
@@ -195,7 +195,7 @@ void mm_free (void *bp)
 	}
 	PTRPUT(bp, seg_listp[i]);
 	seg_listp[i] = (unsigned long)bp;
-	printf("free: bp=%p, size=%ld, seg_listp[%d]=%p\n", bp, size, i, (void*)seg_listp[i]);
+	/*printf("free: bp=%p, size=%ld, seg_listp[%d]=%p\n", bp, size, i, (void*)seg_listp[i]);*/
 }
 
 /*
@@ -355,6 +355,7 @@ static void *coalesce(void *bp)
     }
 
     else if (!prev_alloc && next_alloc) {      /* Case 3 */
+		printf("ENTER Case 3\n");
         size_t tempsize = GET_SIZE(HDRP(PREV_BLKP(bp)));
 		int i = 0;
 		for(i = 0; (size_t)(1 << (i + 4)) < tempsize; ++i) {
