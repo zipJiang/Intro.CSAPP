@@ -324,8 +324,7 @@ static void *coalesce(void *bp)
 		/* Delete item from the segregated list*/
 		unsigned long* tempseg = seg_listp + i;
 		unsigned long* curr_del = (unsigned long*)NEXT_BLKP(bp);
-		while(*tempseg != (unsigned long)curr_del
-				&& tempseg != NULL) {
+		while(tempseg != NULL && *tempseg != (unsigned long)curr_del) {
 			tempseg = (unsigned long*)(*tempseg);
 		}
 		/* WARNING: This block is only used for debugging! */
@@ -352,8 +351,7 @@ static void *coalesce(void *bp)
 		}
 		unsigned long* tempseg = seg_listp + i;
 		unsigned long* curr_del = (unsigned long*)PREV_BLKP(bp);
-		while(*tempseg != (unsigned long)curr_del
-				&& tempseg != NULL) {
+		while(tempseg != NULL && *tempseg != (unsigned long)curr_del) {
 			tempseg = (unsigned long*)(*tempseg);
 		}
 		/* WARNING: This block is only used for debugging! */
@@ -381,8 +379,7 @@ static void *coalesce(void *bp)
 		}
 		unsigned long* tempseg = seg_listp + i;
 		unsigned long* curr_del = (unsigned long*)PREV_BLKP(bp);
-		while(*tempseg != (unsigned long)curr_del
-				&& tempseg != NULL) {
+		while(tempseg != NULL && *tempseg != (unsigned long)curr_del) {
 			tempseg = (unsigned long*)(*tempseg);
 		}
 		/* WARNING: This block is only used for debugging! */
