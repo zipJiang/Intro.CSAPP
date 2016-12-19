@@ -275,7 +275,7 @@ void mm_checkheap(int lineno)
  */
 static void *extend_heap(size_t words) 
 {
-    char *bp;
+    void *bp;
     size_t size;
 
     /* Allocate an even number of words to maintain alignment */
@@ -291,6 +291,9 @@ static void *extend_heap(size_t words)
 	
 	/* First coalesce bp, than insert it into the head of the
 	 * linked list */
+	/*
+	 * Insertion being done in the caller function
+	 */
 	bp = coalesce(bp);
 
     /* Coalesce if the previous block was free */
@@ -390,7 +393,7 @@ static void *coalesce(void *bp)
 		PTRPUT(tempseg, *curr_del);
 
 		//then next
-		for(i = 0; (size_t)(i << i) < tempsize_next; ++i) {
+		for(i = 0; (size_t)(1 << i) < tempsize_next; ++i) {
 			;
 		}
 		tempseg = seg_listp + i;
