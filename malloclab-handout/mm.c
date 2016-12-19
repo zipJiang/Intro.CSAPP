@@ -178,7 +178,7 @@ void mm_free (void *bp)
 
     PUT(HDRP(bp), PACK(size, 0));
     PUT(FTRP(bp), PACK(size, 0));
-    coalesce(bp);
+    bp = coalesce(bp);
 	/* This code insert the block back into the proper list entry. */
 	size = GET_SIZE(HDRP(bp));
 	int i = 0;
