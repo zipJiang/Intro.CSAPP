@@ -103,7 +103,7 @@ int mm_init(void)
 	}
 	/*ADDING new bp*/
 	int i = 0;
-	for(i = 0; (unsigned int)(1 << i) < GET_SIZE(HDRP(temp)); ++i) {
+	for(i = 0; (size_t)(1 << i) < GET_SIZE(HDRP(temp)); ++i) {
 		; //Magic Code Keeping GCC HAPPY
 	}
 
@@ -156,7 +156,7 @@ void *mm_malloc(size_t size)
     place(bp, asize);
 	
 	/* Verbose Again */
-	/*printf("malloc: bp=%p, size=%ld, asize=%ld\n", bp, size, asize);*/
+	printf("malloc: bp=%p, size=%ld, asize=%ld\n", bp, size, asize);
     return bp;
 }
 
@@ -182,7 +182,7 @@ void mm_free (void *bp)
 	/* This code insert the block back into the proper list entry. */
 	size = GET_SIZE(HDRP(bp));
 	int i = 0;
-	for(i = 0; (unsigned int)(1 << i) < size; ++i) {
+	for(i = 0; (size_t)(1 << i) < size; ++i) {
 		;
 	}
 	PTRPUT(bp, seg_listp[i]);
@@ -315,7 +315,7 @@ static void *coalesce(void *bp)
         size_t tempsize = GET_SIZE(HDRP(NEXT_BLKP(bp)));
 		/* determine which list the chunk is in*/
 		int i = 0;
-		for(i = 0; (unsigned int)(1 << i) < tempsize; ++i) {
+		for(i = 0; (size_t)(1 << i) < tempsize; ++i) {
 			;	//Make GCC happy again.
 		}
 		/* Delete item from the segregated list*/
@@ -344,7 +344,7 @@ static void *coalesce(void *bp)
     else if (!prev_alloc && next_alloc) {      /* Case 3 */
         size_t tempsize = GET_SIZE(HDRP(PREV_BLKP(bp)));
 		int i = 0;
-		for(i = 0; (unsigned int)(1 << i) < tempsize; ++i) {
+		for(i = 0; (size_t)(1 << i) < tempsize; ++i) {
 			;
 		}
 		unsigned long* tempseg = seg_listp + i;
@@ -373,7 +373,7 @@ static void *coalesce(void *bp)
 		size_t tempsize_next = GET_SIZE(FTRP(NEXT_BLKP(bp)));
 		//delete the previous first
 		int i = 0;
-		for(i = 0; (unsigned int)(1 << i) < tempsize_prev; ++i) {
+		for(i = 0; (size_t)(1 << i) < tempsize_prev; ++i) {
 			;
 		}
 		unsigned long* tempseg = seg_listp + i;
@@ -390,7 +390,7 @@ static void *coalesce(void *bp)
 		PTRPUT(tempseg, *curr_del);
 
 		//then next
-		for(i = 0; (unsigned int)(i << i) < tempsize_next; ++i) {
+		for(i = 0; (size_t)(i << i) < tempsize_next; ++i) {
 			;
 		}
 		tempseg = seg_listp + i;
@@ -466,7 +466,7 @@ static void place(void *bp, size_t asize)
         PUT(FTRP(nbp), PACK(csize-asize, 0));
 		/* First decide which segregated list bp in*/
 		int i = 0;
-		for(i = 0; ((unsigned int)(1 << i) < csize - asize); ++i) {
+		for(i = 0; ((size_t)(1 << i) < csize - asize); ++i) {
 			;
 		}
 		/* insert into the proper list entry*/
@@ -507,7 +507,7 @@ static void *find_fit(size_t asize)
 	/* Determine proper list entry and rewrite fitsize */
 	int i = 0;
 	/*printf("In function find_fit(): calculating %ld\n", asize);*/
-	for(i = 0; (i < 33) && (((unsigned int)(1 << i) < asize) ||
+	for(i = 0; (i < 33) && (((size_t)(1 << i) < asize) ||
 			((unsigned long*)seg_listp[i] == NULL)); ++i) {
 		; /* Keep GCC Happy*/
 		/* Becomming a little more verbose. */
