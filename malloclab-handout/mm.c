@@ -187,7 +187,7 @@ void mm_free (void *bp)
 	}
 	PTRPUT(bp, seg_listp[i]);
 	seg_listp[i] = (unsigned long)bp;
-	printf("malloc: bp=%p, size=%ld\n", bp, size);
+	printf("free: bp=%p, size=%ld\n", bp, size);
 }
 
 /*
