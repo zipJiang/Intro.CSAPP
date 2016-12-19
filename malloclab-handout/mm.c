@@ -4,6 +4,9 @@
  * in the CS:APP3e text. Blocks must be aligned to doubleword (8 byte) 
  * boundaries. Minimum block size is 16 bytes. 
  */
+/*
+ * This Seg_pro function store the previous block's allocating condition in the header field of the free block.
+ */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -43,6 +46,7 @@
 /* Read the size and allocated fields from address p */
 #define GET_SIZE(p)  (GET(p) & ~0x7)                   
 #define GET_ALLOC(p) (GET(p) & 0x1)                    
+#define GET_PREALLOC(p) (GET(p) & 0x2)
 
 /* Given block ptr bp, compute address of its header and footer */
 #define HDRP(bp)       ((char *)(bp) - WSIZE)                      
@@ -86,13 +90,14 @@ int mm_init(void)
 	}
 	heap_listp += 28 * 8;
     /* Create the initial empty heap */
-    if ((heap_listp = mem_sbrk(4*WSIZE)) == (void *)-1) 
+    if ((heap_listp = mem_sbrk(2*WSIZE)) == (void *)-1) 
         return -1;
-    PUT(heap_listp, 0);                          /* Alignment padding */
-    PUT(heap_listp + (1*WSIZE), PACK(DSIZE, 1)); /* Prologue header */ 
+    PUT(heap_listp, PACK(WSIZE, 1)); /* Prologue header */ 
 	//PTRPUT(heap_listp + (2*WSIZE), NULL);
-    PUT(heap_listp + (2*WSIZE), PACK(DSIZE, 1)); /* Prologue footer */ 
-    PUT(heap_listp + (3*WSIZE), PACK(0, 1));     /* Epilogue header */
+	/* No footer for allocated block!!! */
+    /*PUT(heap_listp + (2*WSIZE), PACK(DSIZE, 1)); [> Prologue footer <] */
+	/* 3 means previous block allocated as well as the block itself. */
+    PUT(heap_listp + WSIZE, PACK(0, 3));     /* Epilogue header */
     heap_listp += (2*WSIZE);
 
 #ifdef NEXT_FIT
@@ -133,12 +138,12 @@ void *mm_malloc(size_t size)
         return NULL;
 
     /* Adjust block size to include overhead and alignment reqs. */
-    if (size <= DSIZE)                                          
+    if (size <= DSIZE + WSIZE)                                          
         asize = 2*DSIZE;                                        
     else
 		/*The appended DSIZE - 1 is for alignment issue, making
 		 * sure that the result follows a bi-word alignment*/
-        asize = DSIZE * ((size + (DSIZE) + (DSIZE-1)) / DSIZE); 
+        asize = DSIZE * ((size + (WSIZE) + (DSIZE-1)) / DSIZE); 
 
     /* Search the free list for a fit */
     if ((bp = find_fit(asize)) != NULL) {
@@ -146,19 +151,19 @@ void *mm_malloc(size_t size)
 		 * "place" function
 		 */
         place(bp, asize);
-		printf("malloc: bp=%p, size=%ld, asize=%ld\n", bp, size, asize);
+		/*printf("malloc: bp=%p, size=%ld, asize=%ld\n", bp, size, asize);*/
         return bp;
     }
 
     /* No fit found. Get more memory and place the block */
-    extendsize = MAX(asize,CHUNKSIZE);                 
+    extendsize = MAX(asize,CHUNKSIZE);
 	/* WARNING blocks that got by extending heap is not deleted, we should delete it manually." */
     if ((bp = extend_heap(extendsize/WSIZE)) == NULL)  
         return NULL;                                  
     place(bp, asize);
 	
 	/* Verbose Again */
-	printf("malloc: bp=%p, size=%ld, asize=%ld\n", bp, size, asize);
+	/*printf("malloc: bp=%p, size=%ld, asize=%ld\n", bp, size, asize);*/
     return bp;
 }
 
@@ -177,8 +182,9 @@ void mm_free (void *bp)
     if (heap_listp == 0){
         mm_init();
     }
-
-    PUT(HDRP(bp), PACK(size, 0));
+	
+	unsigned int v = GET_PREALLOC(HDRP(bp));
+    PUT(HDRP(bp), PACK(size, v));
     PUT(FTRP(bp), PACK(size, 0));
     bp = coalesce(bp);
 	/* This code insert the block back into the proper list entry. */
@@ -189,7 +195,7 @@ void mm_free (void *bp)
 	}
 	PTRPUT(bp, seg_listp[i]);
 	seg_listp[i] = (unsigned long)bp;
-	printf("free: bp=%p, size=%ld, seg_listp[%d]=%p\n", bp, size, i, (void*)seg_listp[i]);
+	/*printf("free: bp=%p, size=%ld, seg_listp[%d]=%p\n", bp, size, i, (void*)seg_listp[i]);*/
 }
 
 /*
@@ -286,7 +292,8 @@ static void *extend_heap(size_t words)
         return NULL;                                        
 
     /* Initialize free block header/footer and the epilogue header */
-    PUT(HDRP(bp), PACK(size, 0));         /* Free block header */   
+	unsigned int v = GET_PREALLOC(HDRP(bp));
+    PUT(HDRP(bp), PACK(size, v));         /* Free block header */   
     PUT(FTRP(bp), PACK(size, 0));         /* Free block footer */   
 	PTRPUT(bp, NULL);
     PUT(HDRP(NEXT_BLKP(bp)), PACK(0, 1)); /* New epilogue header */ 
@@ -308,7 +315,7 @@ static void *extend_heap(size_t words)
 static void *coalesce(void *bp) 
 {
 	/*unsigned long*old_bp = (unsigned long*)bp;*/
-    size_t prev_alloc = GET_ALLOC(FTRP(PREV_BLKP(bp)));
+    size_t prev_alloc = GET_PREALLOC(HDRP(bp));
     size_t next_alloc = GET_ALLOC(HDRP(NEXT_BLKP(bp)));
     size_t size = GET_SIZE(HDRP(bp));
 
@@ -337,9 +344,10 @@ static void *coalesce(void *bp)
 		PTRPUT(tempseg, *curr_del);
 
 		size += tempsize;
-
-        PUT(HDRP(bp), PACK(size, 0));
-        PUT(FTRP(bp), PACK(size,0));
+		
+		unsigned int v = GET_PREALLOC(HDRP(bp));
+        PUT(HDRP(bp), PACK(size, v));
+        PUT(FTRP(bp), PACK(size, 0));
 		/* In this case we have to delete nextBlock from the
 		 * free list. */
 		/* DONE */
@@ -366,7 +374,8 @@ static void *coalesce(void *bp)
 		size += tempsize;
 
         PUT(FTRP(bp), PACK(size, 0));
-        PUT(HDRP(PREV_BLKP(bp)), PACK(size, 0));
+		unsigned int v = GET_PREALLOC(HDRP(PREV_BLKP(bp)));
+        PUT(HDRP(PREV_BLKP(bp)), PACK(size, v));
         bp = PREV_BLKP(bp);
 		/*In this case we have to delete the prevBlock*/
     }
@@ -394,7 +403,8 @@ static void *coalesce(void *bp)
 		size += tempsize_prev;
 
         PUT(FTRP(bp), PACK(size, 0));
-        PUT(HDRP(PREV_BLKP(bp)), PACK(size, 0));
+		unsigned int v = GET_PREALLOC(HDRP(PREV_BLKP(bp)));
+        PUT(HDRP(PREV_BLKP(bp)), PACK(size, v));
         bp = PREV_BLKP(bp);
 		//then next
 		for(i = 0; (size_t)(1 << (i + 4)) < tempsize_next; ++i) {
@@ -413,7 +423,7 @@ static void *coalesce(void *bp)
 		PTRPUT(tempseg, *curr_del);
 
 		size += tempsize_next;
-        PUT(HDRP(bp), PACK(size, 0));
+        PUT(HDRP(bp), PACK(size, v));
         PUT(FTRP(bp), PACK(size, 0));
 		/*In this we have to delete both*/
     }
@@ -458,16 +468,17 @@ static void place(void *bp, size_t asize)
     size_t csize = GET_SIZE(HDRP(bp));
 
     if ((csize - asize) >= (2*DSIZE)) { 
-
-        PUT(HDRP(bp), PACK(asize, 1));
-        PUT(FTRP(bp), PACK(asize, 1));
+		
+		unsigned int v = GET_PREALLOC(HDRP(bp));
+        PUT(HDRP(bp), PACK(asize, 1 + v));
 
 		/*add smaller segments back into the list*/
         void *nbp = NEXT_BLKP(bp);
 		/* Verbose */
 		/*printf("In function place(): nbp = %p\n", nbp);*/
 		/*Insert the newly allocated block*/
-        PUT(HDRP(nbp), PACK(csize-asize, 0));
+		v = GET_PREALLOC(HDRP(nbp));
+        PUT(HDRP(nbp), PACK(csize-asize, v));
         PUT(FTRP(nbp), PACK(csize-asize, 0));
 		/* First decide which segregated list bp in*/
 		int i = 0;
@@ -481,7 +492,8 @@ static void place(void *bp, size_t asize)
     else {
 		/* which means we only have to delete, the insertion
 		 * won't be performed.*/
-        PUT(HDRP(bp), PACK(csize, 1));
+		unsigned int v = GET_PREALLOC(HDRP(bp));
+        PUT(HDRP(bp), PACK(csize, 1 + v));
         PUT(FTRP(bp), PACK(csize, 1));
     }
 }
