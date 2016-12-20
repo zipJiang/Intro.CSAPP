@@ -166,7 +166,7 @@ void *mm_malloc(size_t size)
 		esize += DSIZE;
 		/*printf("adjusted esize:%ld, asize: %ld\n", esize, asize);*/
 	}
-    extendsize = MAX(asize,CHUNKSIZE);
+    extendsize = MAX(esize,CHUNKSIZE);
 	/* WARNING blocks that got by extending heap is not deleted, we should delete it manually." */
     if ((bp = extend_heap(extendsize/WSIZE)) == NULL)  
         return NULL;                                  
