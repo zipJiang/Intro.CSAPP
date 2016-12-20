@@ -81,6 +81,7 @@ int mm_init(void)
 	 */
 	/*create empty segregated list and move heap_listp forward */
 	heap_listp = 0;
+	printf("mem_heap_hi: %p\n", mem_heap_hi());
 	if ((seg_listp = mem_sbrk(28 * 8)) == (void*)-1)
 		return -1;
 	/* Initialization */
@@ -156,6 +157,7 @@ void *mm_malloc(size_t size)
     }
 
     /* No fit found. Get more memory and place the block */
+	/*Needn't extend that large.*/
     extendsize = MAX(asize,CHUNKSIZE);
 	/* WARNING blocks that got by extending heap is not deleted, we should delete it manually." */
     if ((bp = extend_heap(extendsize/WSIZE)) == NULL)  
