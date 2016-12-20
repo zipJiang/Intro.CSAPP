@@ -160,6 +160,7 @@ void *mm_malloc(size_t size)
 	/*Needn't extend that large.*/
 	size_t esize = asize;
 	void *ptr = mem_heap_hi() - 3;
+	printf("%d\n", *(unsigned int*)ptr);
 	if(!GET_PREALLOC(ptr)) {
 		esize -= GET_SIZE(ptr - 4);
 		esize += DSIZE;
