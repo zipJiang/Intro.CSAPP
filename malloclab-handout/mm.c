@@ -160,7 +160,7 @@ void *mm_malloc(size_t size)
 	/*Needn't extend that large.*/
 	size_t esize = asize;
 	void *ptr = mem_heap_hi() - 3;
-	printf("%d\n", *(unsigned int*)ptr);
+	/*printf("%d\n", *(unsigned int*)ptr);*/
 	if(!GET_PREALLOC(ptr)) {
 		esize -= GET_SIZE(ptr - 4);
 		esize += DSIZE;
@@ -554,30 +554,35 @@ static void *find_fit(size_t asize)
 	}
 
 	/* As this method will left the first one, lets manual compromise */
-	bp = (void *)seg_listp[i];
-	if(GET_SIZE(HDRP(bp)) >= asize) {
-		/* delete and return */
-		/*
-		 *printf("Now deleting bp at %p\n", bp);
-		 *printf("SEG:BEFORE:%p\n", (void*)seg_listp[i]);
-		 */
-		seg_listp[i] = *((unsigned long*)bp);
-		/*printf("SEG:AFTER:%p\n", (void*)seg_listp[i]);*/
-		/*printf("bp:%p\n", bp);*/
-		return bp;
-	}
-    for (; (unsigned long*)(*(unsigned long*)(bp)) != NULL;
-			bp = (void*)(*(unsigned long*)bp)) {
-        if (asize <= GET_SIZE(HDRP(*(unsigned long*)bp))) {
-			/*delete bp first*/
-			/*printf("Now deleting bp at %p\n", (void*)bp);*/
-			unsigned long*tempseg = (unsigned long*)bp;
-			bp = (void*)(*tempseg);
-			PTRPUT(tempseg, *(unsigned long*)bp);
+	/* Very often we might fail to find compatible pack in the ith entrey, so we have to go through a loop to check if its avialable. */
+	for(;i != 28; ++i) {
+		if((unsigned long*)seg_listp[i] == NULL)
+			continue;
+		bp = (void *)seg_listp[i];
+		if(GET_SIZE(HDRP(bp)) >= asize) {
+			/* delete and return */
+			/*
+			*printf("Now deleting bp at %p\n", bp);
+			*printf("SEG:BEFORE:%p\n", (void*)seg_listp[i]);
+			*/
+			seg_listp[i] = *((unsigned long*)bp);
+			/*printf("SEG:AFTER:%p\n", (void*)seg_listp[i]);*/
 			/*printf("bp:%p\n", bp);*/
-            return bp;
-        }
-    }
+		return bp;
+		}
+		for (; (unsigned long*)(*(unsigned long*)(bp)) != NULL;
+				bp = (void*)(*(unsigned long*)bp)) {
+			if (asize <= GET_SIZE(HDRP(*(unsigned long*)bp))) {
+				/*delete bp first*/
+				/*printf("Now deleting bp at %p\n", (void*)bp);*/
+				unsigned long*tempseg = (unsigned long*)bp;
+				bp = (void*)(*tempseg);
+				PTRPUT(tempseg, *(unsigned long*)bp);
+				/*printf("bp:%p\n", bp);*/
+				return bp;
+			}
+		}
+	}
     return NULL; /* No fit */
 #endif
 }
