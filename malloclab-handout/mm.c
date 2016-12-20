@@ -162,7 +162,8 @@ void *mm_malloc(size_t size)
 	void *ptr = mem_heap_hi() - 3;
 	if(!GET_PREALLOC(ptr)) {
 		esize -= GET_SIZE(ptr - 4);
-		printf("adjusted esize:%ld, asize: %ld\n", esize, asize);
+		esize += 8;
+		/*printf("adjusted esize:%ld, asize: %ld\n", esize, asize);*/
 	}
     extendsize = MAX(esize,CHUNKSIZE);
 	/* WARNING blocks that got by extending heap is not deleted, we should delete it manually." */
