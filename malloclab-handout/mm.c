@@ -163,7 +163,7 @@ void *mm_malloc(size_t size)
     place(bp, asize);
 	
 	/* Verbose Again */
-	/*printf("malloc: bp=%p, size=%ld, asize=%ld\n", bp, size, asize);*/
+	printf("malloc: bp=%p, size=%ld, asize=%ld\n", bp, size, asize);
     return bp;
 }
 
