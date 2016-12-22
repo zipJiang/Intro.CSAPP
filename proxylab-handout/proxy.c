@@ -63,6 +63,7 @@ int main(int argc, char **argv)
 		 * Then we should form a request string and query
 		 * the host beyond.
 		 */
+		printf("--------------------\n");
 		int forward_clientfd = Open_clientfd(host, port);
 		rio_t readrio;
 		Rio_readinitb(&readrio, forward_clientfd);
@@ -73,6 +74,7 @@ int main(int argc, char **argv)
 		strcat(buf, " ");
 		strcat(buf, "HTTP/1.0\r\n");
 		Rio_writen(forward_clientfd, buf, strlen(buf));
+		printf("buf written: %s", buf);
 		/* Then we apply all the header we have */
 		int iter = 0;
 		for(;iter != hdrnum; ++iter) {
@@ -84,9 +86,13 @@ int main(int argc, char **argv)
 				strcat(buf, "\r\n");
 			}
 			Rio_writen(forward_clientfd, buf, strlen(buf));
+			printf("buf written: %s", buf);
 		}
 		/* Then we should Apply a empty line to end the request. */
 		Rio_writen(forward_clientfd, "\r\n", strlen(buf));
+		printf("buf written: %s", buf);
+
+		printf("--------------------\n");
 
 		/* Waiting for the reply */
 		size_t nread = 0;
