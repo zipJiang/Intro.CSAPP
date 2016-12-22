@@ -79,8 +79,6 @@ int main(int argc, char **argv)
 			if(errno == EPIPE) {
 				errno = 0;
 				printf("Write to a file descriptor prematurely closed.\n");
-				Close(forward_clientfd);
-				break;
 			}
 			printf("buf written: %s", buf);
 			/* Then we apply all the header we have */
@@ -97,7 +95,6 @@ int main(int argc, char **argv)
 				if(errno == EPIPE) {
 					errno = 0;
 					printf("Write to a file descriptor prematurely closed.\n");
-					break;
 				}
 				printf("buf written: %s", buf);
 			}
@@ -106,7 +103,6 @@ int main(int argc, char **argv)
 			if(errno == EPIPE) {
 				errno = 0;
 				printf("Write to a file descriptor prematurely closed.\n");
-				break;
 			}
 			printf("buf written: %s", buf);
 
@@ -118,14 +114,12 @@ int main(int argc, char **argv)
 				if(errno == EPIPE) {
 					errno = 0;
 					printf("Write to a file descriptor prematurely closed.\n");
-					break;
 				}
 			}
 			if(errno == ECONNRESET) {
 				/* Fault handler */
 				printf("Reading from a bad file descriptor.\n");
 				errno = 0;
-				Close(forward_clientfd);
 				continue;
 			}
 			/* The previous part is error prone */
