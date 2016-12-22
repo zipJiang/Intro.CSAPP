@@ -73,6 +73,7 @@ int main(int argc, char **argv)
 		strcat(buf, uri);
 		strcat(buf, " ");
 		strcat(buf, "HTTP/1.0\r\n");
+		printf("WRITING forward_clientfd");
 		Rio_writen(forward_clientfd, buf, strlen(buf));
 		printf("buf written: %s", buf);
 		/* Then we apply all the header we have */
