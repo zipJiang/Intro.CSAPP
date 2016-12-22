@@ -56,7 +56,7 @@ int main(int argc, char **argv)
 		printf("Accepted connection from (%s, %s)\n", client_host,
 				client_port);
 		/* Parsing request */
-		strcpy(port, "8080");
+		strcpy(port, "80");
 		if(main_parser(connfd))
 			continue;
 		/*
