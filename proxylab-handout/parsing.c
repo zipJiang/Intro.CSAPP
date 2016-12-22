@@ -47,9 +47,20 @@ int main_parser(int fd) {
     /*char filename[MAXLINE], cgiargs[MAXLINE];*/
 
     /* Read request line and headers */
-    Rio_readinitb(&rio, fd);
-    if (!Rio_readlineb(&rio, buf, MAXLINE))  //line:netp:doit:readrequest
+	int conditioner = 0;
+    if ((conditioner = Rio_readlineb(&rio, buf, MAXLINE)) < 0) {  //line:netp:doit:readrequest
+		if(errno == ECONNRESET) {
+			printf("Reading from a bad file descriptor.\n");
+			errno = 0;
+		}
         return 1;
+	}
+	/*
+	 *else if(!conditioner) {
+	 *    [> Which means the client has closed its respective socket. <]
+	 *    return 1;
+	 *}
+	 */
     printf("%s", buf);
     sscanf(buf, "%s %s %s", method, url, version);       //line:netp:doit:parserequest
     if (strcasecmp(method, "GET")) {                     //line:netp:doit:beginrequesterr
