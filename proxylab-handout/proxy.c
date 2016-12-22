@@ -80,7 +80,7 @@ int main(int argc, char **argv)
 				errno = 0;
 				printf("Write to a file descriptor prematurely closed.\n");
 				Close(forward_clientfd);
-				continue;
+				break;
 			}
 			printf("buf written: %s", buf);
 			/* Then we apply all the header we have */
@@ -97,6 +97,7 @@ int main(int argc, char **argv)
 				if(errno == EPIPE) {
 					errno = 0;
 					printf("Write to a file descriptor prematurely closed.\n");
+					break;
 				}
 				printf("buf written: %s", buf);
 			}
@@ -105,6 +106,7 @@ int main(int argc, char **argv)
 			if(errno == EPIPE) {
 				errno = 0;
 				printf("Write to a file descriptor prematurely closed.\n");
+				break;
 			}
 			printf("buf written: %s", buf);
 
@@ -112,13 +114,18 @@ int main(int argc, char **argv)
 
 			/* Waiting for the reply */
 			size_t nread = 0;
+			int f = 0;
 			while((nread = Rio_readnb(&readrio, buf, MAXLINE)) > 0) {
 				Rio_writen(connfd, buf, nread);
 				if(errno == EPIPE) {
 					errno = 0;
 					printf("Write to a file descriptor prematurely closed.\n");
+					f = 1;
+					break;
 				}
 			}
+			if(f)
+				break;
 			if(errno == ECONNRESET) {
 				/* Fault handler */
 				printf("Reading from a bad file descriptor.\n");
