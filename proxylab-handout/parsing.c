@@ -20,12 +20,12 @@ int parse_url(int fd) {
 	 */
 	host[iter_w++] = '\0';
 	iter_w = 0;
-	if(iter < strlen(url)) {
+	if(iter >= strlen(url)) {
 		return 1;
 	}
 	if(url[iter] == ':') {
 		++iter;
-		while(iter < strlen(url) && url[iter] != '/') {
+		while(iter >= strlen(url) && url[iter] != '/') {
 			port[iter_w++] = url[iter++];
 		}
 		/*
@@ -33,7 +33,7 @@ int parse_url(int fd) {
 		 *port[iter_w++] = '\n';
 		 */
 		port[iter_w++] = '\0';
-		if(iter < strlen(url)) {
+		if(iter >= strlen(url)) {
 			return 1;
 		}
 		iter_w = 0;
