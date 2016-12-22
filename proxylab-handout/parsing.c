@@ -58,10 +58,12 @@ int main_parser(int fd) {
 		}
         return 1;
 	}
-	else if(!conditioner) {
-		/* Which means the client has closed its respective socket. */
-		return 1;
-	}
+	/*
+	 *else if(!conditioner) {
+	 *    [> Which means the client has closed its respective socket. <]
+	 *    return 1;
+	 *}
+	 */
     printf("%s", buf);
     sscanf(buf, "%s %s %s", method, url, version);       //line:netp:doit:parserequest
     if (strcasecmp(method, "GET")) {                     //line:netp:doit:beginrequesterr

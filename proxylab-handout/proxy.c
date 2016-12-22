@@ -74,7 +74,7 @@ int main(int argc, char **argv)
 			strcat(buf, uri);
 			strcat(buf, " ");
 			strcat(buf, "HTTP/1.0\r\n");
-			printf("WRITING forward_clientfd");
+			printf("WRITING forward_clientfd\n");
 			Rio_writen(forward_clientfd, buf, strlen(buf));
 			if(errno == EPIPE) {
 				errno = 0;
