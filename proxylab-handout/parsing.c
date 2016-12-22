@@ -19,13 +19,14 @@ int parse_url(int fd) {
 	 *host[iter_w++] = '\n';
 	 */
 	host[iter_w++] = '\0';
+	printf("EXTRACTED HOST: %s\n", host);
 	iter_w = 0;
 	if(iter >= strlen(url)) {
 		return 1;
 	}
 	if(url[iter] == ':') {
 		++iter;
-		while(iter >= strlen(url) && url[iter] != '/') {
+		while(iter < strlen(url) && url[iter] != '/') {
 			port[iter_w++] = url[iter++];
 		}
 		/*
@@ -33,12 +34,14 @@ int parse_url(int fd) {
 		 *port[iter_w++] = '\n';
 		 */
 		port[iter_w++] = '\0';
+		printf("EXTRACTED PORT: %s\n", port);
 		if(iter >= strlen(url)) {
 			return 1;
 		}
 		iter_w = 0;
 	}
 	strcpy(uri, url + iter);
+	printf("EXTRACTED URI: %s\n", uri);
 	return 0;
 }
 /* This file implemented  the parsing function */
@@ -47,20 +50,9 @@ int main_parser(int fd) {
     /*char filename[MAXLINE], cgiargs[MAXLINE];*/
 
     /* Read request line and headers */
-	int conditioner = 0;
-    if ((conditioner = Rio_readlineb(&rio, buf, MAXLINE)) < 0) {  //line:netp:doit:readrequest
-		if(errno == ECONNRESET) {
-			printf("Reading from a bad file descriptor.\n");
-			errno = 0;
-		}
+    Rio_readinitb(&rio, fd);
+    if (!Rio_readlineb(&rio, buf, MAXLINE))  //line:netp:doit:readrequest
         return 1;
-	}
-	/*
-	 *else if(!conditioner) {
-	 *    [> Which means the client has closed its respective socket. <]
-	 *    return 1;
-	 *}
-	 */
     printf("%s", buf);
     sscanf(buf, "%s %s %s", method, url, version);       //line:netp:doit:parserequest
     if (strcasecmp(method, "GET")) {                     //line:netp:doit:beginrequesterr
@@ -169,6 +161,7 @@ void read_requesthdrs(rio_t *rp)
 		strcpy(hdr_content[hdrnum], "close\r\n");
 		++hdrnum;
 	}
+	printf("REQUEST HEADER READING: DONE, with hdrnum=%d\n", hdrnum);
     return;
 }
 /* $end read_requesthdrs */
