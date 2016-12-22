@@ -57,7 +57,8 @@ int main(int argc, char **argv)
 				client_port);
 		/* Parsing request */
 		strcpy(port, "8080");
-		main_parser(connfd);
+		if(main_parser(connfd))
+			continue;
 		/*
 		 * Then we should form a request string and query
 		 * the host beyond.
@@ -69,6 +70,7 @@ int main(int argc, char **argv)
 		strcpy(buf, method);
 		strcat(buf, " ");
 		strcat(buf, uri);
+		strcat(buf, " ");
 		strcat(buf, "HTTP/1.0\r\n");
 		Rio_writen(forward_clientfd, buf, strlen(buf));
 		/* Then we apply all the header we have */

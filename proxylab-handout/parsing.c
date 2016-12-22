@@ -19,6 +19,7 @@ int parse_url(int fd) {
 	 *host[iter_w++] = '\n';
 	 */
 	host[iter_w++] = '\0';
+	printf("EXTRACTED HOST: %s\n", host);
 	iter_w = 0;
 	if(iter < strlen(url)) {
 		return 1;
@@ -33,12 +34,14 @@ int parse_url(int fd) {
 		 *port[iter_w++] = '\n';
 		 */
 		port[iter_w++] = '\0';
+		printf("EXTRACTED PORT: %s\n", port);
 		if(iter < strlen(url)) {
 			return 1;
 		}
 		iter_w = 0;
 	}
 	strcpy(uri, url + iter);
+	printf("EXTRACTED URI: %s\n", uri);
 	return 0;
 }
 /* This file implemented  the parsing function */
