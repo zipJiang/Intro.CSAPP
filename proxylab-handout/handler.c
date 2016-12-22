@@ -1,5 +1,8 @@
 #include "gadget.h"
 
-void sigpipe_handler() {
-	return ;
+int sigpipe_handler() {
+	Close(connfd);
+	Close(forward_clientfd);
+	longjmp(jbf, 0);
+	return 0;
 }
