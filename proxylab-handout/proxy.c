@@ -36,7 +36,7 @@ static char client_host[MAXLINE];
 static char client_port[MAXLINE];
 int main(int argc, char **argv)
 {
-	Signal(SIGPIPE, SIG_IGN);
+	Signal(SIGPIPE, sigpipe_handler);
 	/* Do I really need this output? */
     printf("%s", user_agent_cnt);
 	/* First we have to readin data and parse them into certain fields:
