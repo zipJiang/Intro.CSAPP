@@ -86,6 +86,7 @@ int main(int argc, char **argv)
 		printf("buf written: %s", buf);
 		/* Then we apply all the header we have */
 		int iter = 0;
+		int f = 0;
 		for(;iter != hdrnum; ++iter) {
 			strcpy(buf, hdr_field[iter]);
 			strcat(buf, " ");
@@ -99,10 +100,14 @@ int main(int argc, char **argv)
 				errno = 0;
 				Close(forward_clientfd);
 				Close(connfd);
-				continue;
+				f = 1;
 				printf("Write to a file descriptor prematurely closed.\n");
+				break;
 			}
 			printf("buf written: %s", buf);
+		}
+		if(f) {
+			continue;
 		}
 		/* Then we should Apply a empty line to end the request. */
 		Rio_writen(forward_clientfd, "\r\n", strlen(buf));
@@ -128,8 +133,10 @@ int main(int argc, char **argv)
 				break;
 			}
 		}
-		if(errno == EPIPE)
+		if(errno == EPIPE) {
+			errno = 0;
 			continue;
+		}
 		if(errno == ECONNRESET) {
 			/* Fault handler */
 			printf("Reading from a bad file descriptor.\n");
