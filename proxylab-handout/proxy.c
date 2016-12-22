@@ -59,7 +59,7 @@ int main(int argc, char **argv)
 		/* Parsing request */
 		strcpy(port, "80");
 		Rio_readinitb(&rio, connfd);
-		while(!main_parser(connfd)) {
+		main_parser(connfd);
 			/*
 			* Then we should form a request string and query
 			* the host beyond.
@@ -123,8 +123,6 @@ int main(int argc, char **argv)
 					break;
 				}
 			}
-			if(f)
-				break;
 			if(errno == ECONNRESET) {
 				/* Fault handler */
 				printf("Reading from a bad file descriptor.\n");
@@ -135,7 +133,6 @@ int main(int argc, char **argv)
 			/* The previous part is error prone */
 			/* After this transfer we should close this connection */
 			Close(forward_clientfd);
-		}
 		/*Close(connfd);*/
 	}
     return 0;
