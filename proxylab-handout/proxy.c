@@ -46,6 +46,7 @@ int main(int argc, char **argv)
 	/* Check the RFC 1945 standard */
 	int listenfd = open_listenfd(argv[1]);
 	int connfd;
+	int forward_clientfd;
 	struct sockaddr_storage clientaddr;
 	socklen_t clientlen;
 	/* I was not sure whether I should use the while(1) to do listening */
@@ -65,7 +66,7 @@ int main(int argc, char **argv)
 			* the host beyond.
 			*/
 			printf("--------------------\n");
-			int forward_clientfd = Open_clientfd(host, port);
+			forward_clientfd = Open_clientfd(host, port);
 			rio_t readrio;
 			Rio_readinitb(&readrio, forward_clientfd);
 			/* First we should send a "method uri version\r\n" string */
@@ -123,9 +124,9 @@ int main(int argc, char **argv)
 				continue;
 			}
 			/* The previous part is error prone */
-			/* After this transfer we should close this connection */
-			Close(forward_clientfd);
 		/*Close(connfd);*/
 	}
+	Close(forward_clientfd);
+	/* After this transfer we should close this connection */
     return 0;
 }
