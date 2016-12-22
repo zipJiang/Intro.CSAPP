@@ -49,8 +49,8 @@ int main(int argc, char **argv)
 	struct sockaddr_storage clientaddr;
 	socklen_t clientlen;
 	/* I was not sure whether I should use the while(1) to do listening */
+	setjmp(jbf);
 	while(1) {
-		setjmp(jbf);
 		clientlen = sizeof(clientaddr);
 		connfd = Accept(listenfd, (SA *)&clientaddr, &clientlen); //line:netp:tiny:accept
         Getnameinfo((SA *) &clientaddr, clientlen, client_host
