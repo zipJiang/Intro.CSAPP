@@ -21,7 +21,7 @@ int parse_url(int fd) {
 	host[iter_w++] = '\0';
 	printf("EXTRACTED HOST: %s\n", host);
 	iter_w = 0;
-	if(iter < strlen(url)) {
+	if(iter >= strlen(url)) {
 		return 1;
 	}
 	if(url[iter] == ':') {
@@ -35,7 +35,7 @@ int parse_url(int fd) {
 		 */
 		port[iter_w++] = '\0';
 		printf("EXTRACTED PORT: %s\n", port);
-		if(iter < strlen(url)) {
+		if(iter >= strlen(url)) {
 			return 1;
 		}
 		iter_w = 0;
