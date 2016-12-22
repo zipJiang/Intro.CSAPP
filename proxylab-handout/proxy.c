@@ -113,13 +113,11 @@ int main(int argc, char **argv)
 			printf("--------------------\n");
 			/* Waiting for the reply */
 			size_t nread = 0;
-			int f = 0;
 			while((nread = Rio_readnb(&readrio, buf, MAXLINE)) > 0) {
 				Rio_writen(connfd, buf, nread);
 				if(errno == EPIPE) {
 					errno = 0;
 					printf("Write to a file descriptor prematurely closed.\n");
-					f = 1;
 					break;
 				}
 			}
