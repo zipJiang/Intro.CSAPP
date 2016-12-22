@@ -161,6 +161,7 @@ void read_requesthdrs(rio_t *rp)
 		strcpy(hdr_content[hdrnum], "close\r\n");
 		++hdrnum;
 	}
+	printf("REQUEST HEADER READING: DONE\n");
     return;
 }
 /* $end read_requesthdrs */
