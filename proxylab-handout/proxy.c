@@ -32,7 +32,7 @@ int main(int argc, char **argv)
 	char uri[MAXLINE];
 	int hdrnum = 0;
 	/* Do I really need this output? */
-    printf("%s", user_agent_cnt);
+    printf("%s\r\n", user_agent_cnt);
 	/* First we have to readin data and parse them into certain fields:
 	 * The host name.
 	 * The path or query
@@ -66,6 +66,7 @@ int main(int argc, char **argv)
 		int forward_clientfd = Open_clientfd(host, port);
 		rio_t readrio;
 		/* Then we should Apply a empty line to end the request. */
+		printf("result being written: \n %s", result);
 		Rio_writen(forward_clientfd, result, strlen(result));
 
 		printf("--------------------\n");
