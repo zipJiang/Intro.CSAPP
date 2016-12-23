@@ -1,6 +1,8 @@
 #ifndef _GADGET
 #define _GADGET
 #include "csapp.h"
+#include<stdio.h>
+#include<stdlib.h>
 #define MAXN 1000
 #endif
 
