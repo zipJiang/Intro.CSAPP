@@ -22,14 +22,14 @@ static char client_host[MAXLINE];
 static char client_port[MAXLINE];
 int main(int argc, char **argv)
 {
-	char host[MAXLINE];
-	char port[MAXLINE];
-	char buf[MAXLINE];
-	char result[MAXLINE];
-	char method[MAXLINE];
-	char url[MAXLINE];
-	char version[MAXLINE];
-	char uri[MAXLINE];
+	char *host = malloc(MAXLINE);
+	char *port = malloc(MAXLINE);
+	char *buf = malloc(MAXLINE);
+	char *result = malloc(MAXLINE);
+	char *method = malloc(MAXLINE);
+	char *url = malloc(MAXLINE);
+	char *version = malloc(MAXLINE);
+	char *uri = malloc(MAXLINE);
 	int hdrnum = 0;
 	/* Do I really need this output? */
     printf("%s\r\n", user_agent_cnt);
