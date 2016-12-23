@@ -23,11 +23,7 @@ static char client_port[MAXLINE];
 int main(int argc, char **argv)
 {
 	char host[MAXLINE];
-	char con[MAXLINE];
-	char procon[MAXLINE];
 	char port[MAXLINE];
-	char hdr_field[MAXN][MAXLINE];
-	char hdr_content[MAXN][MAXLINE];
 	char buf[MAXLINE];
 	char result[MAXLINE];
 	char method[MAXLINE];
@@ -35,8 +31,6 @@ int main(int argc, char **argv)
 	char version[MAXLINE];
 	char uri[MAXLINE];
 	int hdrnum = 0;
-	int is_static;
-	rio_t rio;
 	/* Do I really need this output? */
     printf("%s", user_agent_cnt);
 	/* First we have to readin data and parse them into certain fields:
