@@ -1,6 +1,6 @@
 #include "gadget.h"
 
-int parse_url(int fd) {
+int parse_url(int fd, char *url, char *host, char *port, char *uri) {
 	int iter = 0;
 	while(iter < strlen(url) && url[iter] != '/')
 		++iter;
@@ -45,11 +45,16 @@ int parse_url(int fd) {
 	return 0;
 }
 /* This file implemented  the parsing function */
-int main_parser(int fd) {
+int main_parser(int fd, char *method, char *host, char *version, char *url, char *port, char *uri,
+		int *hdrnum, char *result) {
     /*struct stat sbuf;*/
     /*char filename[MAXLINE], cgiargs[MAXLINE];*/
+	char hdr_field[MAXLINE];
+	char hdr_content[MAXLINE];
 
     /* Read request line and headers */
+	rio_t rio;
+	char buf[MAXLINE];
     Rio_readinitb(&rio, fd);
     if (!Rio_readlineb(&rio, buf, MAXLINE))  //line:netp:doit:readrequest
         return 1;
@@ -66,11 +71,18 @@ int main_parser(int fd) {
 	 * assume that all url using the absolute
 	 * url.
 	 */
-	if(parse_url(fd)) {
+	/*int parse_url(int fd, char *url, char *host, char *port, char *uri);*/
+	if(parse_url(fd, url, host, port, uri)) {
 		clienterror(fd, url, "400", "Bad request", "Proxy fail to extract host and uri");
 		return 1;
 	}
-    read_requesthdrs(&rio);                              //line:netp:doit:readrequesthdrs
+	/* Forming request here */
+	strcpy(result, method);
+	strcat(result, " ");
+	strcat(result, uri);
+	strcat(result, "HTTP/1.0\r\n");
+    read_requesthdrs(&rio, hdrnum, hdr_field, hdr_content, host, result);                              //line:netp:doit:readrequesthdrs
+	/*void read_requesthdrs(rio_t *rp, int *hdrnum, char *hdr_field, char *hdr_content)*/
 
     /* Parse URI from GET request */
 	/* 
@@ -102,9 +114,9 @@ int main_parser(int fd) {
  * but here we have to preserve all the header
  * Instead of those that we want to change.
  */
-void read_requesthdrs(rio_t *rp) 
+void read_requesthdrs(rio_t *rp, int *hdrnum, char *hdr_field, char *hdr_content, char *host, char *result)
 {
-    hdrnum = 0;
+    *hdrnum = 0;
 	char buf[MAXLINE];
 	int host_flag = 0;
 	int usr_flag = 0;
@@ -115,53 +127,58 @@ void read_requesthdrs(rio_t *rp)
     while(strcmp(buf, "\r\n")) {          //line:netp:readhdrs:checkterm
 		/* The original programme only read and discard data. */
 		/* We have to parse everyline into readable header */
-		sscanf(buf, "%s %s", hdr_field[hdrnum], hdr_content[hdrnum]);
-		if(!strcmp(hdr_field[hdrnum], "Host:")){
+		sscanf(buf, "%s %s", hdr_field, hdr_content);
+		if(!strcmp(hdr_field, "Host:")){
 			/*Intentionally Left Blank */
-			strcpy(hdr_content[hdrnum], host);
-			strcat(hdr_content[hdrnum], "\r\n");
+			strcpy(hdr_content, host);
 			host_flag = 1;
 		}
-		else if(!strcmp(hdr_field[hdrnum], "User-Agent:")) {
+		else if(!strcmp(hdr_field, "User-Agent:")) {
 			/* Replacing */
-			strcpy(hdr_content[hdrnum], user_agent_cnt);
+			strcpy(hdr_content, user_agent_cnt);
 			usr_flag = 1;
 		}
-		else if(!strcmp(hdr_field[hdrnum], "Connection:")) {
-			strcpy(hdr_content[hdrnum], "close\r\n");
+		else if(!strcmp(hdr_field, "Connection:")) {
+			strcpy(hdr_content, "close");
 			conn_flag = 1;
 		}
-		else if(!strcmp(hdr_field[hdrnum], "Proxy-Connection:")) {
-			strcpy(hdr_content[hdrnum], "close\r\n");
+		else if(!strcmp(hdr_field, "Proxy-Connection:")) {
+			strcpy(hdr_content, "close");
 			proxy_flag = 1;
 		}
-		++hdrnum;
+		strcat(result, hdr_field);
+		strcat(result, " ");
+		strcat(result, hdr_content);
+		strcat(result, "\r\n");
+		++(*hdrnum);
 		Rio_readlineb(rp, buf, MAXLINE);
 		printf("%s", buf);
     }
 	if(!host_flag) {
-		strcpy(hdr_field[hdrnum], "Host:");
 		/* Intentionally Left Blank */
-		strcpy(hdr_content[hdrnum], host);
-		strcat(hdr_content[hdrnum], "\r\n");
-		++hdrnum;
+		strcat(result, "Host: ");
+		strcat(result, host);
+		strcat(result, "\r\n");
+		++(*hdrnum);
 	}
 	if(!usr_flag) {
-		strcpy(hdr_field[hdrnum], "User-Agent:");
-		strcpy(hdr_content[hdrnum], user_agent_cnt);
-		++hdrnum;
+		strcat(result, "User-Agent: ");
+		strcat(result, user_agent_cnt);
+		strcat(result, "\r\n");
+		++(*hdrnum);
 	}
 	if(!conn_flag) {
-		strcpy(hdr_field[hdrnum], "Connection:");
-		strcpy(hdr_content[hdrnum], "close\r\n");
-		++hdrnum;
+		strcat(result, "Connection: ");
+		strcat(result, "close\r\n");
+		++(*hdrnum);
 	}
 	if(!proxy_flag) {
-		strcpy(hdr_field[hdrnum], "Proxy-Connection:");
-		strcpy(hdr_content[hdrnum], "close\r\n");
-		++hdrnum;
+		strcat(result, "Proxy-Connection: ");
+		strcat(result, "close\r\n");
+		++(*hdrnum);
 	}
-	printf("REQUEST HEADER READING: DONE, with hdrnum=%d\n", hdrnum);
+	strcat(result, "\r\n");
+	printf("REQUEST HEADER READING: DONE, with hdrnum=%d\n", *hdrnum);
     return;
 }
 /* $end read_requesthdrs */
