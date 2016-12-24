@@ -54,9 +54,7 @@ int main_parser(int fd, char *method, char *host, char *version, char *url, char
 
     /* Read request line and headers */
 	char buf[MAXLINE];
-	/*
-     *printf("%s", buf);
-	 */
+	printf("%s", buf);
     sscanf(buf, "%s %s %s", method, url, version);       //line:netp:doit:parserequest
     if (strcasecmp(method, "GET")) {                     //line:netp:doit:beginrequesterr
         clienterror(fd, method, "501", "Not Implemented",
