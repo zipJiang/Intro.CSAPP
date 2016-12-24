@@ -77,7 +77,8 @@ int main(int argc, char **argv)
 		/* Waiting for the reply */
 		size_t nread = 0;
 		while((nread = Rio_readnb(&readrio, buf, MAXLINE)) > 0) {
-			printf("forward connection success.\nwriting back....");
+			printf("forward connection success.\n");
+			printf("writing back....\n");
 			Rio_writen(connfd, buf, nread);
 		}
 		/* The previous part is error prone */
