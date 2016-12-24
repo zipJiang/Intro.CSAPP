@@ -22,14 +22,14 @@ static char client_host[MAXLINE];
 static char client_port[MAXLINE];
 int main(int argc, char **argv)
 {
-	char *host = malloc(MAXLINE);
-	char *port = malloc(MAXLINE);
-	char *buf = malloc(MAXLINE);
-	char *result = malloc(MAXLINE);
-	char *method = malloc(MAXLINE);
-	char *url = malloc(MAXLINE);
-	char *version = malloc(MAXLINE);
-	char *uri = malloc(MAXLINE);
+	char *host;
+	char *port;
+	char *buf;
+	char *result;
+	char *method;
+	char *url;
+	char *version;
+	char *uri;
 	int hdrnum = 0;
 	/* Do I really need this output? */
     printf("%s\r\n", user_agent_cnt);
@@ -45,6 +45,14 @@ int main(int argc, char **argv)
 	socklen_t clientlen;
 	/* I was not sure whether I should use the while(1) to do listening */
 	while(1) {
+		host = malloc(MAXLINE);
+		port = malloc(MAXLINE);
+		buf = malloc(MAXLINE);
+		result = malloc(MAXLINE);
+		method = malloc(MAXLINE);
+		url = malloc(MAXLINE);
+		version = malloc(MAXLINE);
+		uri = malloc(MAXLINE);
 		clientlen = sizeof(clientaddr);
 		connfd = Accept(listenfd, (SA *)&clientaddr, &clientlen); //line:netp:tiny:accept
         Getnameinfo((SA *) &clientaddr, clientlen, client_host
@@ -94,6 +102,14 @@ int main(int argc, char **argv)
 			printf("Writing finished.\n");
 			Close(forward_clientfd);
 		}
+		free(host);
+		free(port);
+		free(buf);
+		free(result);
+		free(method);
+		free(url);
+		free(version);
+		free(uri);
 	}
     return 0;
 }
