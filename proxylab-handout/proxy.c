@@ -68,7 +68,7 @@ int main(int argc, char **argv)
 		Rio_readinitb(&rio, connfd);
 		while(Rio_readlineb(&rio, buf, MAXLINE) > 0) {
 			main_parser(connfd, method, host, version, url, port, uri,
-					&hdrnum, result, &rio);
+					buf, &hdrnum, result, &rio);
 			/*
 			* Then we should form a request string and query
 			* the host beyond.

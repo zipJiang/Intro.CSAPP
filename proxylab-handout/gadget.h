@@ -33,4 +33,4 @@ void clienterror(int fd, char *cause, char *errnum,
 void sigpipe_handler();
 /* This file implemented  the parsing function */
 int main_parser(int fd, char *method, char *host, char *version, char *url, char *port, char *uri,
-		int *hdrnum, char *result, rio_t *rio);
+		char *buf, int *hdrnum, char *result, rio_t *rio);

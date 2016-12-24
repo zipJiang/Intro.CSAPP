@@ -45,7 +45,7 @@ int parse_url(int fd, char *url, char *host, char *port, char *uri) {
 	return 0;
 }
 /* This file implemented  the parsing function */
-int main_parser(int fd, char *method, char *host, char *version, char *url, char *port, char *uri,
+int main_parser(int fd, char *method, char *host, char *version, char *url, char *port, char *uri, char *buf,
 		int *hdrnum, char *result, rio_t *rio) {
     /*struct stat sbuf;*/
     /*char filename[MAXLINE], cgiargs[MAXLINE];*/
@@ -53,7 +53,6 @@ int main_parser(int fd, char *method, char *host, char *version, char *url, char
 	char hdr_content[MAXLINE];
 
     /* Read request line and headers */
-	char buf[MAXLINE];
 	printf("%s", buf);
     sscanf(buf, "%s %s %s", method, url, version);       //line:netp:doit:parserequest
     if (strcasecmp(method, "GET")) {                     //line:netp:doit:beginrequesterr
