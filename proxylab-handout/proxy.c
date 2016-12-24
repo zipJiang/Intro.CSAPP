@@ -65,7 +65,9 @@ int main(int argc, char **argv)
 		printf("--------------------\n");
 		int forward_clientfd = Open_clientfd(host, port);
 		rio_t readrio;
+		rio_t rio;
 		Rio_readinitb(&readrio, forward_clientfd);
+		Rio_readinitb(&rio, connfd);
 		/* Then we should Apply a empty line to end the request. */
 		printf("result being written: \n%s", result);
 		Rio_writen(forward_clientfd, result, strlen(result));
