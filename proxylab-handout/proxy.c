@@ -66,14 +66,16 @@ int main(int argc, char **argv)
 		int forward_clientfd = Open_clientfd(host, port);
 		rio_t readrio;
 		/* Then we should Apply a empty line to end the request. */
-		printf("result being written: \n %s", result);
+		printf("result being written: \n%s", result);
 		Rio_writen(forward_clientfd, result, strlen(result));
+		printf("data sent.\r\n");
 
 		printf("--------------------\n");
 
 		/* Waiting for the reply */
 		size_t nread = 0;
 		while((nread = Rio_readnb(&readrio, buf, MAXLINE)) > 0) {
+			printf("forward connection success.\nwriting back....");
 			Rio_writen(connfd, buf, nread);
 		}
 		/* The previous part is error prone */
