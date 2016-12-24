@@ -68,8 +68,8 @@ int main(int argc, char **argv)
 		Rio_readinitb(&rio, connfd);
 		int r = 0;
 		while((r = main_parser(connfd, method, host, version, 
-						url, port, uri, &hdrnum, result, &rio)) != 2) {
-			if(r)
+						url, port, uri, &hdrnum, result, &rio))) {
+			if(r == 1)
 				continue;
 			/*
 			* Then we should form a request string and query
@@ -102,6 +102,8 @@ int main(int argc, char **argv)
 			/* After this transfer we should close this connection */
 			printf("Writing finished.\n");
 			Close(forward_clientfd);
+			if(r == 2)
+				break;
 		}
 		free(host);
 		free(port);
