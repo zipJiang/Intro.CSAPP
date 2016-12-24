@@ -91,7 +91,7 @@ int main(int argc, char **argv)
 		/* After this transfer we should close this connection */
 		printf("Writing finished.\n");
 		Close(forward_clientfd);
-		/*Close(connfd);*/
+		Close(connfd);
 	}
     return 0;
 }
