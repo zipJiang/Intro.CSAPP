@@ -65,10 +65,10 @@ int main(int argc, char **argv)
 		printf("--------------------\n");
 		int forward_clientfd = Open_clientfd(host, port);
 		rio_t readrio;
+		Rio_readinitb(&readrio, forward_clientfd);
 		/* Then we should Apply a empty line to end the request. */
 		printf("result being written: \n%s", result);
 		Rio_writen(forward_clientfd, result, strlen(result));
-		printf("data sent.\r\n");
 
 		printf("--------------------\n");
 
