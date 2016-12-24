@@ -55,8 +55,10 @@ int main(int argc, char **argv)
 		strcpy(port, "80");
 		/*int main_parser(int fd, char *method, char *host, char *version, char *url, char *port, char *uri,*/
 			/*int *hdrnum);*/
+		rio_t rio;
+		Rio_readinitb(&rio, connfd);
 		if(main_parser(connfd, method, host, version, url, port,
-					uri, &hdrnum, result))
+					uri, &hdrnum, result, &rio))
 			continue;
 		/*
 		 * Then we should form a request string and query
@@ -65,9 +67,7 @@ int main(int argc, char **argv)
 		printf("--------------------\n");
 		int forward_clientfd = Open_clientfd(host, port);
 		rio_t readrio;
-		rio_t rio;
 		Rio_readinitb(&readrio, forward_clientfd);
-		Rio_readinitb(&rio, connfd);
 		/* Then we should Apply a empty line to end the request. */
 		printf("result being written: \n%s", result);
 		Rio_writen(forward_clientfd, result, strlen(result));
@@ -84,7 +84,7 @@ int main(int argc, char **argv)
 
 		/* After this transfer we should close this connection */
 		Close(forward_clientfd);
-		Close(connfd);
+		/*Close(connfd);*/
 	}
     return 0;
 }

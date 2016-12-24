@@ -46,17 +46,15 @@ int parse_url(int fd, char *url, char *host, char *port, char *uri) {
 }
 /* This file implemented  the parsing function */
 int main_parser(int fd, char *method, char *host, char *version, char *url, char *port, char *uri,
-		int *hdrnum, char *result) {
+		int *hdrnum, char *result, rio_t *rio) {
     /*struct stat sbuf;*/
     /*char filename[MAXLINE], cgiargs[MAXLINE];*/
 	char hdr_field[MAXLINE];
 	char hdr_content[MAXLINE];
 
     /* Read request line and headers */
-	rio_t rio;
 	char buf[MAXLINE];
-    Rio_readinitb(&rio, fd);
-    if (!Rio_readlineb(&rio, buf, MAXLINE))  //line:netp:doit:readrequest
+    if (!Rio_readlineb(rio, buf, MAXLINE))  //line:netp:doit:readrequest
         return 1;
     printf("%s", buf);
     sscanf(buf, "%s %s %s", method, url, version);       //line:netp:doit:parserequest
@@ -81,7 +79,7 @@ int main_parser(int fd, char *method, char *host, char *version, char *url, char
 	strcat(result, " ");
 	strcat(result, uri);
 	strcat(result, "HTTP/1.0\r\n");
-    read_requesthdrs(&rio, hdrnum, hdr_field, hdr_content, host, result);                              //line:netp:doit:readrequesthdrs
+    read_requesthdrs(rio, hdrnum, hdr_field, hdr_content, host, result);                              //line:netp:doit:readrequesthdrs
 	/*void read_requesthdrs(rio_t *rp, int *hdrnum, char *hdr_field, char *hdr_content)*/
 
     /* Parse URI from GET request */
