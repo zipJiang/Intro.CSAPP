@@ -66,6 +66,11 @@ int main(int argc, char **argv)
 		 */
 		printf("--------------------\n");
 		int forward_clientfd = Open_clientfd(host, port);
+		if(forward_clientfd == -1) {
+			printf("connection failed\n");
+			close(connfd);
+			continue;
+		}
 		rio_t readrio;
 		Rio_readinitb(&readrio, forward_clientfd);
 		/* Then we should Apply a empty line to end the request. */
