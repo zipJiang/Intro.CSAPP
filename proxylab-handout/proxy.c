@@ -67,8 +67,8 @@ int main(int argc, char **argv)
 		rio_t rio;
 		Rio_readinitb(&rio, connfd);
 		int r = 0;
-		while((r = main_parser(connfd, method, host, version, 
-						url, port, uri, &hdrnum, result, &rio))) {
+		while(!(r = main_parser(connfd, method, host, version, 
+						url, port, uri, &hdrnum, result, &rio)) || r) {
 			if(r == 1)
 				continue;
 			/*
