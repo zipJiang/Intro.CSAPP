@@ -54,6 +54,7 @@ int main(int argc, char **argv)
 		version = malloc(MAXLINE);
 		uri = malloc(MAXLINE);
 		clientlen = sizeof(clientaddr);
+		printf("Accepting new input.\n");
 		connfd = Accept(listenfd, (SA *)&clientaddr, &clientlen); //line:netp:tiny:accept
         Getnameinfo((SA *) &clientaddr, clientlen, client_host
 				, MAXLINE, client_port, MAXLINE, 0);
