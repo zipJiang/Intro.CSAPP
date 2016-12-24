@@ -89,6 +89,7 @@ int main(int argc, char **argv)
 		/* The previous part is error prone */
 
 		/* After this transfer we should close this connection */
+		printf("Writing finished.\n");
 		Close(forward_clientfd);
 		/*Close(connfd);*/
 	}
