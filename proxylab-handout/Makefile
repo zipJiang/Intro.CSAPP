@@ -11,8 +11,8 @@ LDFLAGS = -lpthread
 
 all: proxy
 
-proxy: proxy.c parsing.c handler.c csapp.c gadget.h csapp.h
-	$(CC) -o proxy $(CFLAGS) proxy.c parsing.c handler.c csapp.c $(LDFLAGS)
+proxy: proxy.c parsing.c handler.c csapp.c threading.c gadget.h csapp.h
+	$(CC) -o proxy $(CFLAGS) proxy.c parsing.c handler.c csapp.c threading.c $(LDFLAGS)
 
 # Creates a tarball in ../proxylab-handin.tar that you should then
 # hand in to Autolab. DO NOT MODIFY THIS!

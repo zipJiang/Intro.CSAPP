@@ -22,6 +22,7 @@ extern const char *user_agent_cnt;
 //extern int is_static;
 //extern rio_t rio;
 
+void *thread(void *varp);
 int parse_url(int fd, char *url, char *host, char *port, char *uri);
 void read_requesthdrs(rio_t *rp, int *hdrnum, char *hdr_field, char *hdr_content, char *host, char *result);
 int parse_uri(char *uri, char *filename, char *cgiargs);

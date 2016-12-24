@@ -22,15 +22,6 @@ static char client_host[MAXLINE];
 static char client_port[MAXLINE];
 int main(int argc, char **argv)
 {
-	char *host;
-	char *port;
-	char *buf;
-	char *result;
-	char *method;
-	char *url;
-	char *version;
-	char *uri;
-	int hdrnum = 0;
 	/* Do I really need this output? */
     printf("%s\r\n", user_agent_cnt);
 	/* First we have to readin data and parse them into certain fields:
@@ -40,74 +31,24 @@ int main(int argc, char **argv)
 	 */
 	/* Check the RFC 1945 standard */
 	int listenfd = open_listenfd(argv[1]);
-	int connfd;
+	int *varp;
 	struct sockaddr_storage clientaddr;
 	socklen_t clientlen;
+	clientlen = sizeof(clientaddr);
+	pthread_t tid;
 	/* I was not sure whether I should use the while(1) to do listening */
 	while(1) {
-		host = malloc(MAXLINE);
-		port = malloc(MAXLINE);
-		buf = malloc(MAXLINE);
-		result = malloc(MAXLINE);
-		method = malloc(MAXLINE);
-		url = malloc(MAXLINE);
-		version = malloc(MAXLINE);
-		uri = malloc(MAXLINE);
-		clientlen = sizeof(clientaddr);
 		printf("Accepting new input.\n");
-		connfd = Accept(listenfd, (SA *)&clientaddr, &clientlen); //line:netp:tiny:accept
+		varp = malloc(sizeof(int));
+		*varp = Accept(listenfd, (SA *)&clientaddr, &clientlen); //line:netp:tiny:accept
         Getnameinfo((SA *) &clientaddr, clientlen, client_host
 				, MAXLINE, client_port, MAXLINE, 0);
 		printf("Accepted connection from (%s, %s)\n", client_host,
 				client_port);
+		Pthread_create(&tid, NULL, thread, varp);
 		/* Parsing request */
-		strcpy(port, "80");
 		/*int main_parser(int fd, char *method, char *host, char *version, char *url, char *port, char *uri,*/
 			/*int *hdrnum);*/
-		rio_t rio;
-		Rio_readinitb(&rio, connfd);
-		while(Rio_readlineb(&rio, buf, MAXLINE) > 0) {
-			main_parser(connfd, method, host, version, url, port, uri,
-					buf, &hdrnum, result, &rio);
-			/*
-			* Then we should form a request string and query
-			* the host beyond.
-			*/
-			printf("--------------------\n");
-			int forward_clientfd = Open_clientfd(host, port);
-			if(forward_clientfd == -1) {
-				printf("connection failed\n");
-				close(connfd); continue;
-			}
-			rio_t readrio;
-			Rio_readinitb(&readrio, forward_clientfd);
-			/* Then we should Apply a empty line to end the request. */
-			printf("result being written: \n%s", result);
-			Rio_writen(forward_clientfd, result, strlen(result));
-
-			printf("--------------------\n");
-
-			/* Waiting for the reply */
-			size_t nread = 0;
-			while((nread = Rio_readnb(&readrio, buf, MAXLINE)) > 0) {
-				printf("forward connection success.\n");
-				printf("writing back....\n");
-				Rio_writen(connfd, buf, nread);
-			}
-			/* The previous part is error prone */
-
-			/* After this transfer we should close this connection */
-			printf("Writing finished.\n");
-			Close(forward_clientfd);
-		}
-		free(host);
-		free(port);
-		free(buf);
-		free(result);
-		free(method);
-		free(url);
-		free(version);
-		free(uri);
 	}
     return 0;
 }
