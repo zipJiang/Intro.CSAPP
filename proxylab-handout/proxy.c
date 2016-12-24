@@ -66,11 +66,9 @@ int main(int argc, char **argv)
 			/*int *hdrnum);*/
 		rio_t rio;
 		Rio_readinitb(&rio, connfd);
-		int r = 0;
-		while(!(r = main_parser(connfd, method, host, version, 
-						url, port, uri, &hdrnum, result, &rio)) || r) {
-			if(r == 1)
-				continue;
+		while(Rio_readlineb(&rio, buf, MAXLINE) > 0) {
+			main_parser(connfd, method, host, version, url, port, uri,
+					&hdrnum, result, &rio);
 			/*
 			* Then we should form a request string and query
 			* the host beyond.
@@ -79,8 +77,7 @@ int main(int argc, char **argv)
 			int forward_clientfd = Open_clientfd(host, port);
 			if(forward_clientfd == -1) {
 				printf("connection failed\n");
-				close(connfd);
-				continue;
+				close(connfd); continue;
 			}
 			rio_t readrio;
 			Rio_readinitb(&readrio, forward_clientfd);
@@ -102,8 +99,6 @@ int main(int argc, char **argv)
 			/* After this transfer we should close this connection */
 			printf("Writing finished.\n");
 			Close(forward_clientfd);
-			if(r == 2)
-				break;
 		}
 		free(host);
 		free(port);

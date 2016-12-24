@@ -54,11 +54,9 @@ int main_parser(int fd, char *method, char *host, char *version, char *url, char
 
     /* Read request line and headers */
 	char buf[MAXLINE];
-    if (!Rio_readlineb(rio, buf, MAXLINE)) {  //line:netp:doit:readrequest
-		printf("The client disconnected.");
-        return 2;
-	}
-    printf("%s", buf);
+	/*
+     *printf("%s", buf);
+	 */
     sscanf(buf, "%s %s %s", method, url, version);       //line:netp:doit:parserequest
     if (strcasecmp(method, "GET")) {                     //line:netp:doit:beginrequesterr
         clienterror(fd, method, "501", "Not Implemented",
