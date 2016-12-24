@@ -78,7 +78,7 @@ int main_parser(int fd, char *method, char *host, char *version, char *url, char
 	strcpy(result, method);
 	strcat(result, " ");
 	strcat(result, uri);
-	strcat(result, "HTTP/1.0\r\n");
+	strcat(result, " HTTP/1.0\r\n");
     read_requesthdrs(rio, hdrnum, hdr_field, hdr_content, host, result);                              //line:netp:doit:readrequesthdrs
 	/*void read_requesthdrs(rio_t *rp, int *hdrnum, char *hdr_field, char *hdr_content)*/
 
