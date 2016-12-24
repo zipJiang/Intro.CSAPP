@@ -57,41 +57,43 @@ int main(int argc, char **argv)
 			/*int *hdrnum);*/
 		rio_t rio;
 		Rio_readinitb(&rio, connfd);
-		if(main_parser(connfd, method, host, version, url, port,
-					uri, &hdrnum, result, &rio))
-			continue;
-		/*
-		 * Then we should form a request string and query
-		 * the host beyond.
-		 */
-		printf("--------------------\n");
-		int forward_clientfd = Open_clientfd(host, port);
-		if(forward_clientfd == -1) {
-			printf("connection failed\n");
-			close(connfd);
-			continue;
+		int r = 0;
+		while((r = main_parser(connfd, method, host, version, 
+						url, port, uri, &hdrnum, result, &rio)) != 2) {
+			if(r)
+				continue;
+			/*
+			* Then we should form a request string and query
+			* the host beyond.
+			*/
+			printf("--------------------\n");
+			int forward_clientfd = Open_clientfd(host, port);
+			if(forward_clientfd == -1) {
+				printf("connection failed\n");
+				close(connfd);
+				continue;
+			}
+			rio_t readrio;
+			Rio_readinitb(&readrio, forward_clientfd);
+			/* Then we should Apply a empty line to end the request. */
+			printf("result being written: \n%s", result);
+			Rio_writen(forward_clientfd, result, strlen(result));
+
+			printf("--------------------\n");
+
+			/* Waiting for the reply */
+			size_t nread = 0;
+			while((nread = Rio_readnb(&readrio, buf, MAXLINE)) > 0) {
+				printf("forward connection success.\n");
+				printf("writing back....\n");
+				Rio_writen(connfd, buf, nread);
+			}
+			/* The previous part is error prone */
+
+			/* After this transfer we should close this connection */
+			printf("Writing finished.\n");
+			Close(forward_clientfd);
 		}
-		rio_t readrio;
-		Rio_readinitb(&readrio, forward_clientfd);
-		/* Then we should Apply a empty line to end the request. */
-		printf("result being written: \n%s", result);
-		Rio_writen(forward_clientfd, result, strlen(result));
-
-		printf("--------------------\n");
-
-		/* Waiting for the reply */
-		size_t nread = 0;
-		while((nread = Rio_readnb(&readrio, buf, MAXLINE)) > 0) {
-			printf("forward connection success.\n");
-			printf("writing back....\n");
-			Rio_writen(connfd, buf, nread);
-		}
-		/* The previous part is error prone */
-
-		/* After this transfer we should close this connection */
-		printf("Writing finished.\n");
-		Close(forward_clientfd);
-		Close(connfd);
 	}
     return 0;
 }
