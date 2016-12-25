@@ -89,7 +89,7 @@ void *thread(void *varp) {
 			strcpy(temp, "./cache/");
 			strcat(temp, iterator->f);
 			printf("file will be created in: %s\n", temp);
-			cfd = Open(temp, O_CREAT | O_WRONLY, 0);
+			cfd = Open(temp, O_CREAT | O_WRONLY, S_IRUSR | S_IWUSR);
 		}
 		printf("result being written: \n%s", result);
 		Rio_readinitb(&readrio, forward_clientfd);
