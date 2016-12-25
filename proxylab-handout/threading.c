@@ -53,6 +53,7 @@ void *thread(void *varp) {
 		struct f_cache *iterator = beg->next;
 		int cached = 0;
 		while(iterator != beg) {
+			printf("iterating....\n");
 			if(iterator->name == url) {
 				cached = 1;
 				char temp[MAXLINE];
