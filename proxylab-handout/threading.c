@@ -127,7 +127,7 @@ void *thread(void *varp) {
 			num[atoi((iterator->f) + 4)] = 0;
 			strcpy(temp, "./cache/");
 			strcat(temp, iterator->f);
-			struct stat *b;
+			struct stat *b = malloc(sizeof(struct stat));
 			stat(temp, b);
 			cache_size_cnt -= b->st_size;
 		}
