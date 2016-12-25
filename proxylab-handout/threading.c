@@ -26,7 +26,7 @@ void *thread(void *varp) {
 	trans_uri = malloc(MAXLINE);
 	temp = malloc(MAXLINE);
 	Rio_readinitb(&rio, connfd);
-	while(Rio_readlineb(&rio, buf, MAXLINE) > 0) {
+	while((!setjmp(env)) && Rio_readlineb(&rio, buf, MAXLINE) > 0) {
 		strcpy(port, "80");
 		main_parser(connfd, method, host, version, url, port, uri,
 				buf, &hdrnum, result, &rio);
