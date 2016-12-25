@@ -39,7 +39,7 @@ void posix_error(int code, char *msg) /* Posix-style error */
 void gai_error(int code, char *msg) /* Getaddrinfo-style error */
 {
     fprintf(stderr, "%s: %s\n", msg, gai_strerror(code));
-    exit(0);
+    return ;
 }
 
 void app_error(char *msg) /* Application error */
