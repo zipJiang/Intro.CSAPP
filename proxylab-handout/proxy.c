@@ -33,6 +33,7 @@ int main(int argc, char **argv)
 		num[i] = 0;
 	}
 	Signal(SIGPIPE, sigpipe_handler);
+	Sem_init(&sem, 0, 1);
     printf("%s\r\n", user_agent_cnt);
 	/* First we have to readin data and parse them into certain fields:
 	 * The host name.
