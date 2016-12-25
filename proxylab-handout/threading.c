@@ -88,6 +88,7 @@ void *thread(void *varp) {
 			sprintf(iterator->f, "file%d", i);
 			strcpy(temp, "./cache/");
 			strcat(temp, iterator->f);
+			printf("file will be created in: %s\n", temp);
 			cfd = Open(temp, O_CREAT | O_WRONLY, 0);
 		}
 		printf("result being written: \n%s", result);
@@ -115,6 +116,7 @@ void *thread(void *varp) {
 			}
 		}
 		if(cached == 0) {
+			printf("New item cached.\n");
 			iterator->next = beg->next->next;
 			iterator->prev = beg;
 			beg->next = iterator;
