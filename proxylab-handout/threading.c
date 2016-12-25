@@ -52,15 +52,8 @@ void *thread(void *varp) {
 		struct f_cache *iterator = beg->next;
 		int cached = 0;
 		while(iterator != beg) {
-			printf("iterating....\n");
-			printf("url:%s\n", iterator->name);
-			printf("filename:%s\n", iterator->f);
 			if(!strcmp(iterator->name, url)) {
 				cached = 1;
-				char temp[MAXLINE];
-				strcpy(temp, "./cache/");
-				strcat(temp, iterator->f);
-				forward_clientfd = Open(temp, O_RDONLY, 0);
 				/* Reinsert the linked list */
 				iterator->next->prev = iterator->prev;
 				iterator->prev->next = iterator->next;
@@ -72,6 +65,7 @@ void *thread(void *varp) {
 			iterator = iterator->next;
 		}
 		int cfd = 0;
+		size_t obj_size_cnt = 0;
 		if(!cached) {
 			forward_clientfd = Open_clientfd(host, port);
 			if(forward_clientfd == -1) {
@@ -79,70 +73,56 @@ void *thread(void *varp) {
 				continue;
 			}
 			Rio_writen(forward_clientfd, result, strlen(result));
-			for(i = 0; i != MAXN; ++i) {
-				if(!num[i])
-					break;
-			}
-			num[i] = 1;
 			iterator = malloc(sizeof(struct f_cache));
+			iterator->content[0] = '\0';
 			strcpy(iterator->name, url);
-			sprintf(iterator->f, "file%d", i);
-			strcpy(temp, "./cache/");
-			strcat(temp, iterator->f);
-			printf("file will be created for: %s\n", iterator->name);
-			cfd = Open(temp, O_CREAT | O_RDWR, 0777);
-		}
-		printf("result being written: \n%s", result);
-		/* This line initialize readrio to forward_clientfd */
-		Rio_readinitb(&readrio, forward_clientfd);
-		/* END */
-		printf("--------------------\n");
-		size_t nread = 0;
-		size_t obj_size_cnt = 0;
-		while((nread = Rio_readnb(&readrio, buf, MAXLINE)) > 0) {
-			printf("forward connection success.\n");
-			printf("writing back....\n");
-			Rio_writen(connfd, buf, nread);
-			if(!cached) {
-				Rio_writen(cfd, buf, nread);
-				printf("writing to file....\n");
-				obj_size_cnt += nread;
-				cache_size_cnt += nread;
-				if(obj_size_cnt > MAX_OBJECT_SIZE) {
-					Close(cfd);
-					unlink(temp);
-					printf("Item too large to cache.\n");
-					/* Delete linked list item */
-					free(iterator);
-					num[i] = 0;
-					cache_size_cnt -= obj_size_cnt;
-					cached = 2;
+			printf("cache will be created for: %s\n", iterator->name);
+			printf("result being written: \n%s", result);
+			/* This line initialize readrio to forward_clientfd */
+			Rio_readinitb(&readrio, forward_clientfd);
+			/* END */
+			printf("--------------------\n");
+			size_t nread = 0;
+			while((nread = Rio_readnb(&readrio, buf, MAXLINE)) > 0) {
+				printf("forward connection success.\n");
+				printf("writing back....\n");
+				Rio_writen(connfd, buf, nread);
+				if(!cached) {
+					/*Rio_writen(cfd, buf, nread);*/
+					strcat(iterator->content, buf);
+					obj_size_cnt += nread;
+					cache_size_cnt += nread;
+					if(obj_size_cnt > MAX_OBJECT_SIZE) {
+						printf("Item too large to cache.\n");
+						/* Delete linked list item */
+						free(iterator);
+						cache_size_cnt -= obj_size_cnt;
+						cached = 2;
+					}
 				}
 			}
+			Close(forward_clientfd);
+		}
+		else {
+			printf("A cached object found.\n");
+			Rio_writen(connfd, iterator->content, iterator->csize);
 		}
 		printf("writing finished. with cache_size becomming:%d\n", cache_size_cnt);
 		P(&sem);
 		if(cached == 0) {
 			printf("New item cached: %s\n", iterator->name);
+			iterator->csize = obj_size_cnt;
 			iterator->next = beg->next;
 			iterator->prev = beg;
 			beg->next = iterator;
-			printf("%s\n", iterator->f);
-			Close(cfd);
+			printf("%s\n", iterator->name);
 		}
 		/* Tomorrow's Work: Delete to satisfy max cache size */
 		while(cache_size_cnt > MAX_CACHE_SIZE) {
 			iterator = beg->prev;
-			beg->prev->prev->next = beg;
-			beg->prev = beg->prev->prev;
-			num[atoi((iterator->f) + 4)] = 0;
-			strcpy(temp, "./cache/");
-			strcat(temp, iterator->f);
-			struct stat *b = malloc(sizeof(struct stat));
-			stat(temp, b);
-			cache_size_cnt -= b->st_size;
-			printf("deleted file: %s\n", temp);
-			unlink(temp);
+			iterator->prev->next = iterator->next;
+			iterator->next->prev = iterator->prev;
+			free(iterator);
 		}
 
 
@@ -152,7 +132,6 @@ void *thread(void *varp) {
 
 		/* After this transfer we should close this connection */
 		printf("Writing finished.\n");
-		Close(forward_clientfd);
 	}
 	free(host);
 	free(port);

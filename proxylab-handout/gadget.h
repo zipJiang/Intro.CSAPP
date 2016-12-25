@@ -9,8 +9,9 @@
 struct f_cache {
 	struct f_cache *next;
 	struct f_cache *prev;
+	int csize;
 	char name[MAXN];
-	char f[MAXN];
+	char content[MAX_OBJECT_SIZE];
 };
 #endif
 
@@ -19,7 +20,6 @@ extern sem_t sem;
 extern jmp_buf env;
 extern int cache_size_cnt;
 extern struct f_cache *beg;
-extern int num[MAXN];
 //extern char host[MAXLINE];
 //extern char con[MAXLINE];
 //extern char procon[MAXLINE];

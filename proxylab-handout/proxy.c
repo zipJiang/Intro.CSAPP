@@ -19,7 +19,6 @@ sem_t sem;
 int cache_size_cnt = 0;
 jmp_buf env;
 struct f_cache *beg = NULL;
-int num[MAXN];
 static char client_host[MAXLINE];
 static char client_port[MAXLINE];
 int main(int argc, char **argv)
