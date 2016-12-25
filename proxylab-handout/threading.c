@@ -47,7 +47,6 @@ void *thread(void *varp) {
 		 *        trans_uri[i] = uri[i];
 		 *}
 		 */
-		/*P(&sem);*/
 		/* First searching the dir for available content. */
 		printf("--------------------\n");
 		struct f_cache *iterator = beg->next;
@@ -115,6 +114,7 @@ void *thread(void *varp) {
 				}
 			}
 		}
+		P(&sem);
 		if(cached == 0) {
 			printf("New item cached: %s\n", iterator->name);
 			iterator->next = beg->next->next;
@@ -139,7 +139,7 @@ void *thread(void *varp) {
 		}
 
 
-		/*V(&sem);*/
+		V(&sem);
 		/* End semaphore control */
 		/* The previous part is error prone */
 
