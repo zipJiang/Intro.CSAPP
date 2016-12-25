@@ -101,11 +101,13 @@ void *thread(void *varp) {
 			Rio_writen(connfd, buf, nread);
 			if(!cached) {
 				Rio_writen(cfd, buf, nread);
+				printf("writing to file....\n");
 				obj_size_cnt += nread;
 				cache_size_cnt += nread;
 				if(obj_size_cnt > MAX_OBJECT_SIZE) {
 					Close(cfd);
 					unlink(temp);
+					printf("Item too large to cache.\n");
 					/* Delete linked list item */
 					free(iterator);
 					num[i] = 0;
