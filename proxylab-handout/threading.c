@@ -120,6 +120,7 @@ void *thread(void *varp) {
 			iterator->next = beg->next->next;
 			iterator->prev = beg;
 			beg->next = iterator;
+			printf("%s\n", iterator->f);
 			Close(cfd);
 		}
 		/* Tomorrow's Work: Delete to satisfy max cache size */
@@ -133,6 +134,8 @@ void *thread(void *varp) {
 			struct stat *b = malloc(sizeof(struct stat));
 			stat(temp, b);
 			cache_size_cnt -= b->st_size;
+			printf("deleted file: %s\n", temp);
+			unlink(temp);
 		}
 
 
