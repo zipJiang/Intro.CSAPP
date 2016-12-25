@@ -37,8 +37,6 @@ void *thread(void *varp) {
 		int forward_clientfd;
 		rio_t readrio;
 		/* Waiting for the reply */
-		/* This section should be controlled by semaphore */
-		int i = 0;
 		/*
 		 *for(i = 0; i != strlen(uri) + 1; ++i) {
 		 *    if(uri[i] == '/')
@@ -64,7 +62,6 @@ void *thread(void *varp) {
 			}
 			iterator = iterator->next;
 		}
-		int cfd = 0;
 		size_t obj_size_cnt = 0;
 		if(!cached) {
 			forward_clientfd = Open_clientfd(host, port);

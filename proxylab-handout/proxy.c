@@ -28,9 +28,6 @@ int main(int argc, char **argv)
 	beg->next = beg;
 	beg->prev = beg;
 	int i = 0;
-	for(i = 0; i != MAXN; ++i) {
-		num[i] = 0;
-	}
 	Signal(SIGPIPE, sigpipe_handler);
 	Sem_init(&sem, 0, 1);
     printf("%s\r\n", user_agent_cnt);
