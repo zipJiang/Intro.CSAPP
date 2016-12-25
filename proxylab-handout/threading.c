@@ -53,6 +53,8 @@ void *thread(void *varp) {
 		int cached = 0;
 		while(iterator != beg) {
 			printf("iterating....\n");
+			printf("url:%s\n", iterator->name);
+			printf("filename:%s\n", iterator->f);
 			if(iterator->name == url) {
 				cached = 1;
 				char temp[MAXLINE];
