@@ -55,7 +55,7 @@ void *thread(void *varp) {
 			printf("iterating....\n");
 			printf("url:%s\n", iterator->name);
 			printf("filename:%s\n", iterator->f);
-			if(iterator->name == url) {
+			if(!strcmp(iterator->name, url)) {
 				cached = 1;
 				char temp[MAXLINE];
 				strcpy(temp, "./cache/");
