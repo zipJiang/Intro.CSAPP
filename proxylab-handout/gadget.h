@@ -4,9 +4,22 @@
 #include<stdio.h>
 #include<stdlib.h>
 #define MAXN 1000
+#define MAX_CACHE_SIZE 1049000
+#define MAX_OBJECT_SIZE 102400
+struct f_cache {
+	struct f_cache *next;
+	struct f_cache *prev;
+	char name[MAXN];
+	char f[MAXN];
+};
 #endif
 
 extern const char *user_agent_cnt;
+extern sem_t sem;
+extern jmp_buf env;
+extern int cache_size_cnt;
+extern struct f_cache *beg;
+extern int num[MAXN];
 //extern char host[MAXLINE];
 //extern char con[MAXLINE];
 //extern char procon[MAXLINE];

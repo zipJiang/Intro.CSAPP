@@ -11,18 +11,29 @@
 #include "gadget.h"
 
 /* Recommended max cache and object sizes */
-#define MAX_CACHE_SIZE 1049000
-#define MAX_OBJECT_SIZE 102400
 
 /* You won't lose style points for including this long line in your code */
 const char *user_agent_cnt = "Mozilla/5.0 (X11; Linux x86_64; rv:10.0.3) Gecko/20120305 Firefox/10.0.3";
 
-
+sem_t sem;
+int cache_size_cnt = 0;
+jmp_buf env;
+struct f_cache *beg = NULL;
+int num[MAXN];
 static char client_host[MAXLINE];
 static char client_port[MAXLINE];
 int main(int argc, char **argv)
 {
 	/* Do I really need this output? */
+	beg = malloc(sizeof(struct f_cache));
+	beg->next = beg;
+	beg->prev = beg;
+	int i = 0;
+	for(i = 0; i != MAXN; ++i) {
+		num[i] = 0;
+	}
+	Signal(SIGPIPE, sigpipe_handler);
+	Sem_init(&sem, 0, 0);
     printf("%s\r\n", user_agent_cnt);
 	/* First we have to readin data and parse them into certain fields:
 	 * The host name.
@@ -38,6 +49,7 @@ int main(int argc, char **argv)
 	pthread_t tid;
 	/* I was not sure whether I should use the while(1) to do listening */
 	while(1) {
+		setjmp(env);
 		printf("Accepting new input.\n");
 		varp = malloc(sizeof(int));
 		*varp = Accept(listenfd, (SA *)&clientaddr, &clientlen); //line:netp:tiny:accept
