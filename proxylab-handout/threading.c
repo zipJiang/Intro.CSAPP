@@ -93,7 +93,9 @@ void *thread(void *varp) {
 			cfd = Open(temp, O_CREAT | O_RDWR, 0777);
 		}
 		printf("result being written: \n%s", result);
+		/* This line initialize readrio to forward_clientfd */
 		Rio_readinitb(&readrio, forward_clientfd);
+		/* END */
 		printf("--------------------\n");
 		size_t nread = 0;
 		size_t obj_size_cnt = 0;
@@ -122,7 +124,7 @@ void *thread(void *varp) {
 		P(&sem);
 		if(cached == 0) {
 			printf("New item cached: %s\n", iterator->name);
-			iterator->next = beg->next->next;
+			iterator->next = beg->next;
 			iterator->prev = beg;
 			beg->next = iterator;
 			printf("%s\n", iterator->f);
