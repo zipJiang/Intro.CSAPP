@@ -116,6 +116,7 @@ void *thread(void *varp) {
 				}
 			}
 		}
+		printf("writing finished. with cache_size becomming:%d\n", cache_size_cnt);
 		P(&sem);
 		if(cached == 0) {
 			printf("New item cached: %s\n", iterator->name);
