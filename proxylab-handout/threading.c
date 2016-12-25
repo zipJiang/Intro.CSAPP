@@ -47,7 +47,7 @@ void *thread(void *varp) {
 		 *        trans_uri[i] = uri[i];
 		 *}
 		 */
-		P(&sem);
+		/*P(&sem);*/
 		/* First searching the dir for available content. */
 		printf("--------------------\n");
 		struct f_cache *iterator = beg->next;
@@ -139,7 +139,7 @@ void *thread(void *varp) {
 		}
 
 
-		V(&sem);
+		/*V(&sem);*/
 		/* End semaphore control */
 		/* The previous part is error prone */
 
